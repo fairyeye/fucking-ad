@@ -1,13 +1,14 @@
 name: 📢 提交流氓广告/诱导跳转案例
-description: 客观留存移动端流氓弹窗、摇一摇误触或诱导跳转案例
-title: "【案例留存】[品牌名称] 在 [宿主APP] 出现的诱导/流氓弹窗"
+description: 客观留存移动端流氓弹窗、摇一摇误触或诱导跳转案例（无需手动改标题）
+title: "【曝光案例提报】（提交后系统将自动重命名，无需手动修改）"
 labels: ["待审核", "广告曝光"]
 body:
   - type: markdown
     attributes:
       value: |
         ### 🛡️ 感谢你为改善移动互联网使用体验提供客观样本！
-        **事实胜于雄辩，客观截图是建档的核心凭据**。提交后 GitHub Actions 机器人将自动提取版本与时间，生成数据并同步更新至 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/)。
+        > 💡 **标题无需修改**：上方标题框保留默认即可，提交后 GitHub Actions 机器人将自动提取【品牌名称】与【宿主APP】重命名规范标题。
+        > 📸 **铁证留存**：请在下方【现场截图】一栏中**直接 Ctrl+V / Command+V 粘贴屏幕截图**（无图无法建档）。提交后自动生成 PR 并同步到 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/)。
 
   - type: input
     id: advertiser_name

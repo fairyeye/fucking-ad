@@ -35,6 +35,30 @@ jobs:
         run: |
           python scripts/issue_to_record.py "$GITHUB_EVENT_PATH"
 
+      # Auto-rename issue title to standard format if placeholder or not standardized
+      - name: Standardize Issue Title
+        if: steps.parse_issue.outputs.brand_name != '' && steps.parse_issue.outputs.brand_name != '未知品牌'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const brand = `${{ steps.parse_issue.outputs.brand_name }}`;
+            const host = `${{ steps.parse_issue.outputs.host_name }}` || '应用';
+            const standardTitle = `【曝光】${brand} - 在 ${host} 中的不良广告`;
+            const currentTitle = context.payload.issue.title || '';
+            if (!currentTitle.startsWith(`【曝光】${brand}`) || currentTitle.includes('无需手动修改') || currentTitle.includes('待自动')) {
+              try {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  title: standardTitle
+                });
+                console.log(`Updated Issue #${context.issue.number} title to: ${standardTitle}`);
+              } catch (err) {
+                console.warn('Failed to update issue title:', err);
+              }
+            }
+
       # Case A: Missing screenshot
       - name: Notify Missing Screenshot
         if: steps.parse_issue.outputs.has_images == 'false'
@@ -76,13 +100,15 @@ jobs:
           commit-message: "feat: record ad offense from Issue #${{ github.event.issue.number }}"
           branch: "auto-record/issue-${{ github.event.issue.number }}"
           delete-branch: true
-          title: "🤖 [自动收录] 来自 Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+          title: "🤖 [自动收录] 【曝光】${{ steps.parse_issue.outputs.brand_name }} - 在 ${{ steps.parse_issue.outputs.host_name }} 中的不良广告 (#${{ github.event.issue.number }})"
           body: |
             ### 📢 自动转换案例记录
 
             - **来源 Issue**: #${{ github.event.issue.number }}
+            - **涉事品牌**: ${{ steps.parse_issue.outputs.brand_name }}
+            - **载体应用**: ${{ steps.parse_issue.outputs.host_name }}
             - **提交用户**: @${{ github.event.issue.user.login }}
-            - **自动生成文件**: `data/records/` 下对应 YAML
+            - **生成文件**: `data/records/${{ steps.parse_issue.outputs.record_file }}`
             - **已同步构建**: `README.md` 与 `docs/` 在线检索站
 
             请维护者核实截图证据后，点击 **Merge pull request** 即可一键收录发布！
@@ -118,3 +144,20 @@ jobs:
                 name: '待补充截图'
               });
             } catch (e) {}
+
+      - name: Alert on Permission / Execution Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commentBody = `⚠️ **自动化建档遇到权限或配置问题**\n\nGitHub Actions 执行未完成。如果是首次运行，通常是因为仓库未开放 Actions 写入或 PR 创建权限：\n\n1. 进入仓库 **Settings -> Actions -> General**\n2. 滚动至 **Workflow permissions**，勾选 **Read and write permissions**\n3. 必须勾选 **Allow GitHub Actions to create and approve pull requests** 并保存。\n\n配置完成后，点击本 Issue 右上角 **Edit** 并直接保存，即可重新触发！`;
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            } catch (e) {
+              console.error(e);
+            }

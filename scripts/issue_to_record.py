@@ -104,13 +104,38 @@ def extract_field(sections: dict, keywords: list, default="") -> str:
                 return clean_val(content, default)
     return default
 
-def process_issue(issue_data: dict, issue_number: int) -> Path:
-    body = issue_data.get("body", "")
+def extract_images(text: str) -> list:
+    """Extract all valid screenshot/image URLs from markdown, HTML or raw links"""
+    imgs = []
+    # Markdown ![alt](url)
+    imgs.extend(re.findall(r'!\[.*?\]\((https?://[^\s\)]+)\)', text))
+    # HTML <img ... src="url"
+    imgs.extend(re.findall(r'<img[^>]+src=[\"\'](https?://[^\"\']+)[\"\']', text, re.IGNORECASE))
+    # Direct image extensions
+    imgs.extend(re.findall(r'https?://[^\s\)\"\'>]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)\"\'>]*)?', text, re.IGNORECASE))
+    # Direct github user attachments
+    imgs.extend(re.findall(r'https?://(?:github\.com/[^\s\)\"\'>]+/assets/|user-images\.githubusercontent\.com/|github-production-user-asset-[^\s\)\"\'>]+)[^\s\)\"\'>]+', text))
+
+    cleaned = []
+    for u in imgs:
+        u = u.strip().rstrip(').,\"\'>')
+        if u and u not in cleaned:
+            cleaned.append(u)
+    return cleaned
+
+def process_issue(issue_data: dict, issue_number: int):
+    body = issue_data.get("body", "") or ""
     sections = parse_issue_markdown(body)
 
     # 1. Advertiser name
-    adv_name = extract_field(sections, ["涉事广告主", "作恶广告主", "品牌名称", "广告主", "品牌"], "未知品牌")
-    # Clean possible markdown bold/links
+    adv_name = extract_field(sections, ["涉事广告主", "作恶广告主", "品牌名称", "广告主", "品牌"], "")
+    if not adv_name:
+        match_brand = re.search(r"(?:涉事广告主|品牌名称|广告主|品牌)[：:\s]+([^\n\r]+)", body)
+        if match_brand:
+            adv_name = match_brand.group(1).strip()
+    if not adv_name:
+        adv_name = "未知品牌"
+    # Clean markdown bold/links
     adv_name = re.sub(r"[*_`]", "", adv_name).strip()
 
     # 2. Parent company
@@ -135,7 +160,14 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             break
 
     # 5. Host app, platform & version
-    raw_host = extract_field(sections, ["载体宿主", "宿主 APP", "受害宿主"], "未知应用")
+    raw_host = extract_field(sections, ["载体宿主", "宿主 APP", "受害宿主"], "")
+    if not raw_host:
+        match_host = re.search(r"(?:载体宿主|宿主\s*APP|宿主应用|载体应用|宿主)[：:\s]+([^\n\r]+)", body)
+        if match_host:
+            raw_host = match_host.group(1).strip()
+    if not raw_host:
+        raw_host = "未知应用"
+
     host_name = raw_host
     platform = "Android"  # default
     if "ios" in raw_host.lower() or "iphone" in raw_host.lower() or "ipad" in raw_host.lower():
@@ -190,9 +222,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         description = f"在 {host_name} 遇到来自 {adv_name} 的诱导弹窗，打扰正常使用体验。"
 
     # 8. Evidence Images (Ironclad proof)
-    image_urls = re.findall(r'https?://[^\s\)]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)]*)?', body, re.IGNORECASE)
-    github_attachments = re.findall(r'https?://(?:github\.com|github-production-user-asset-[^\s\)]+|user-images\.githubusercontent\.com)[^\s\)]+', body)
-    all_images = list(dict.fromkeys(image_urls + github_attachments))
+    all_images = extract_images(body)
 
     # 9. Date extraction
     raw_date = extract_field(sections, ["事发日期", "捕获日期", "事发捕获日期", "日期"], "")
@@ -207,6 +237,9 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     # 10. Alternatives
     raw_host_alts = extract_field(sections, ["体面替代", "良心替代", "替换该宿主", "替换宿主", "干净软件", "良心替代品", "替代品"], "")
     host_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_host_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
+
+    raw_adv_alts = extract_field(sections, ["替代品牌", "体面品牌", "替换广告主"], "")
+    adv_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_adv_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
 
     # Generate record ID
     clean_brand = re.sub(r"[^\w]+", "", adv_name) or "ad"
@@ -248,7 +281,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     with open(out_file, "w", encoding="utf-8") as f:
         yaml.safe_dump(record, f, allow_unicode=True, sort_keys=False)
 
-    return out_file, len(all_images) > 0
+    return out_file, len(all_images) > 0, adv_name, host_name
 
 def main():
     if len(sys.argv) < 2:
@@ -269,8 +302,8 @@ def main():
         sys.exit(1)
 
     issue_number = issue.get("number", 0)
-    out_path, has_images = process_issue(issue, issue_number)
-    print(f"🎉 成功由 Issue #{issue_number} 转化并生成记录文件: {out_path.name} (含截图: {has_images})")
+    out_path, has_images, brand_name, host_name = process_issue(issue, issue_number)
+    print(f"🎉 成功由 Issue #{issue_number} 转化并生成记录文件: {out_path.name} (含截图: {has_images}, 品牌: {brand_name}, 宿主: {host_name})")
 
     github_output = os.environ.get("GITHUB_OUTPUT")
     if github_output:
@@ -278,6 +311,8 @@ def main():
             f.write(f"record_file={out_path.name}\n")
             f.write(f"record_id={out_path.stem}\n")
             f.write(f"has_images={'true' if has_images else 'false'}\n")
+            f.write(f"brand_name={brand_name}\n")
+            f.write(f"host_name={host_name}\n")
 
 if __name__ == "__main__":
     main()
