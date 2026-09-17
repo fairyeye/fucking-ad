@@ -140,11 +140,15 @@ def validate_record(file_path: Path) -> list[str]:
         if not isinstance(cnt, int) or cnt < 0:
             errors.append(f"字段 'outrage_count' 必须为非负整数，当前为: {cnt}")
 
-    # 8. Check Evidence
-    evidence = data.get("evidence", {})
-    if isinstance(evidence, dict):
+    # 8. Check Evidence (Mandatory Ironclad Evidence)
+    evidence = data.get("evidence")
+    if not evidence or not isinstance(evidence, dict):
+        errors.append("缺少必须字段: 'evidence' (铁证凭据)")
+    else:
         images = evidence.get("images", [])
-        if isinstance(images, list):
+        if not images or not isinstance(images, list) or len(images) == 0:
+            errors.append("缺少铁证截图: 'evidence.images' 必须至少包含 1 张截图作为客观铁证！")
+        else:
             for img in images:
                 if isinstance(img, str) and not (img.startswith("http://") or img.startswith("https://")):
                     local_path = PROJECT_ROOT / img

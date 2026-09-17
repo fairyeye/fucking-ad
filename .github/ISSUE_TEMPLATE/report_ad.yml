@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         ### 🛡️ 感谢你为天下手机用户发声！
-        互联网没有记忆，但 Git 有。请提供真实截图凭据，提交后 GitHub Actions 机器人将自动解析并创建合并请求（PR），同步上线至 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/)。
+        **无截图无真相，截图是立案铁证**。提交后 GitHub Actions 机器人将自动提取版本与时间，生成数据并同步更新至 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/)。
 
   - type: input
     id: advertiser_name
@@ -46,6 +46,24 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: host_version
+    attributes:
+      label: 🔢 宿主 APP 版本号（精准定责凭据）
+      description: 请查看该 APP 的「我的/设置 -> 关于」中的具体版本号（如：v12.0.1）
+      placeholder: 如：12.0.1 或 8.9.30
+    validations:
+      required: false
+
+  - type: input
+    id: incident_date
+    attributes:
+      label: 📅 事发捕获日期（时间存据）
+      description: 发生该流氓弹窗的具体日期（格式 YYYY-MM-DD，留空则默认今天）
+      placeholder: 如：2026-09-17（留空自动使用今天）
+    validations:
+      required: false
+
   - type: checkboxes
     id: offense_type
     attributes:
@@ -79,9 +97,9 @@ body:
   - type: textarea
     id: description_and_evidence
     attributes:
-      label: 📷 恶行简述与截图凭证
-      description: 请简单描述事发过程，并直接将截图【拖拽】或【Ctrl+V 粘贴】上传到此输入框（极其重要，无图不予收录）。
-      placeholder: 走路手腕轻晃直接跳转唤醒；返回后关闭按键延迟3秒才显示... (在此处直接粘贴截图)
+      label: 📷 恶行截图（铁证 · 必填）与事发说明
+      description: 必须附上截图铁证！请直接在此处【Ctrl+V 粘贴】或【拖拽】上传屏幕截图（无图不予收录），并简单说明事发过程。
+      placeholder: 必须直接在此处粘贴或拖入屏幕截图证据！并简单说明事发过程（如：走路手腕微晃直接唤醒跳转，关闭按键延迟3秒才显示）...
     validations:
       required: true
 

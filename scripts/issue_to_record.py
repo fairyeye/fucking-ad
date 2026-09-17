@@ -139,7 +139,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
                 category = brand_info.get("category", "其他")
             break
 
-    # 5. Host app & platform
+    # 5. Host app, platform & version
     raw_host = extract_field(sections, ["宿主 APP", "受害宿主"], "未知应用")
     host_name = raw_host
     platform = "Android"  # default
@@ -151,6 +151,15 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         platform = "Windows"
     elif "mac" in raw_host.lower():
         platform = "macOS"
+
+    # Extract version
+    raw_version = extract_field(sections, ["版本号", "宿主 APP 版本", "版本"], "")
+    if not raw_version:
+        match_ver = re.search(r"[vV]?(\d+\.\d+(?:\.\d+)?)", raw_host)
+        if match_ver:
+            raw_version = match_ver.group(1)
+    if raw_version:
+        raw_version = raw_version.lstrip("vV").strip()
 
     # Clean host name (e.g. "酷狗音乐 (iOS 17.5)" -> "酷狗音乐")
     host_name = re.split(r"[\(（\s]", host_name)[0].strip()
@@ -185,24 +194,35 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     else:
         description = f"在 {host_name} 遇到来自 {adv_name} 的流氓广告弹窗，严重打断用户正常使用体验。"
 
-    # 8. Evidence Images (scan whole issue body so no images are missed)
+    # 8. Evidence Images (Ironclad proof)
     image_urls = re.findall(r'https?://[^\s\)]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)]*)?', body, re.IGNORECASE)
     github_attachments = re.findall(r'https?://(?:github\.com|github-production-user-asset-[^\s\)]+|user-images\.githubusercontent\.com)[^\s\)]+', body)
     all_images = list(dict.fromkeys(image_urls + github_attachments))
 
-    # 9. Host Alternatives
-    raw_host_alts = extract_field(sections, ["替换该宿主", "替换宿主", "干净软件"], "")
+    # 9. Date extraction
+    raw_date = extract_field(sections, ["事发日期", "捕获日期", "事发捕获日期", "日期"], "")
+    match_date = re.search(r"\b(\d{4}-\d{2}-\d{2})\b", raw_date)
+    if match_date:
+        date_str = match_date.group(1)
+        date_compact = date_str.replace("-", "")
+    else:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        date_compact = datetime.now().strftime("%Y%m%d")
+
+    # 10. Alternatives
+    raw_host_alts = extract_field(sections, ["替换该宿主", "替换宿主", "干净软件", "良心替代品"], "")
     host_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_host_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
 
-    # 10. Advertiser Alternatives
-    raw_adv_alts = extract_field(sections, ["替代该广告主", "良心消费途径", "购买渠道"], "")
-    adv_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_adv_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
-
     # Generate record ID
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    date_compact = datetime.now().strftime("%Y%m%d")
     clean_brand = re.sub(r"[^\w]+", "", adv_name) or "ad"
     record_id = f"{date_compact}-issue{issue_number}-{clean_brand}"
+
+    host_dict = {
+        "name": host_name,
+        "platform": platform
+    }
+    if raw_version:
+        host_dict["version"] = raw_version
 
     record = {
         "id": record_id,
@@ -212,10 +232,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             "category": category,
             "boycott_level": boycott_level
         },
-        "host_app": {
-            "name": host_name,
-            "platform": platform
-        },
+        "host_app": host_dict,
         "offense_type": sorted(list(detected_offenses)),
         "description": description,
         "evidence": {
