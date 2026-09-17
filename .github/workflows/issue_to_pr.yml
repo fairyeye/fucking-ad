@@ -1,0 +1,87 @@
+name: 🤖 Auto Process Issue to PR
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  convert_issue:
+    # Trigger when issue has label '广告曝光' or '待审核', or title contains '【曝光】'
+    if: >
+      contains(github.event.issue.labels.*.name, '广告曝光') ||
+      contains(github.event.issue.labels.*.name, '待审核') ||
+      startsWith(github.event.issue.title, '【曝光】')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Parse Issue to YAML Record
+        id: parse_issue
+        run: |
+          python scripts/issue_to_record.py "$GITHUB_EVENT_PATH"
+
+      - name: Validate Generated Record
+        run: |
+          python scripts/lint_data.py
+
+      - name: Rebuild README and Web Portal
+        run: |
+          python scripts/build_readme.py
+          python scripts/build_site.py
+
+      - name: Create Pull Request for Review
+        uses: peter-evans/create-pull-request@v6
+        id: cpr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: auto-record ad offense from Issue #${{ github.event.issue.number }}"
+          branch: "auto-record/issue-${{ github.event.issue.number }}"
+          delete-branch: true
+          title: "🤖 [自动收录] 来自 Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+          body: |
+            ### 📢 自动转换恶行记录
+
+            - **来源 Issue**: #${{ github.event.issue.number }}
+            - **提交用户**: @${{ github.event.issue.user.login }}
+            - **自动生成文件**: `data/records/` 下对应 YAML
+            - **已同步构建**: `README.md` 与 `docs/` 在线检索站
+
+            请维护者核实截图证据后，点击 **Merge pull request** 即可一键收录发布！
+          labels: |
+            自动收录
+            待合并
+
+      - name: Comment on Issue
+        if: steps.cpr.outputs.pull-request-number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNum = ${{ steps.cpr.outputs.pull-request-number }};
+            const commentBody = `🎉 **感谢你的曝光发声！**\n\n机器人已自动将你的提交转换为数据档案，并创建了合并请求：#${prNum}。\n\n维护团队将在核实截图证据后点击合并，届时主页和 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/) 将自动更新上线！`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['PR已生成']
+            });
