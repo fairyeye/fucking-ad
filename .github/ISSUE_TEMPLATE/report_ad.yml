@@ -1,0 +1,121 @@
+name: 📢 举报流氓弹窗广告
+description: 提交一个新的流氓弹窗、摇一摇或诱导点击广告案例
+title: "【曝光】[品牌名称] 在 [宿主APP] 投放流氓弹窗广告"
+labels: ["待审核", "广告曝光"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你为天下受害者发声！
+        为了保证记录的真实性和公信力，请尽可能提供**真实的截图或录屏**，事实清晰，有据可查。
+
+  - type: input
+    id: advertiser_name
+    attributes:
+      label: 🚫 作恶广告主/品牌名称
+      description: 弹窗宣传的具体产品或品牌是什么？（例如：拼多多、某某分期、某某二手车）
+      placeholder: 如：拼多多
+    validations:
+      required: true
+
+  - type: input
+    id: parent_company
+    attributes:
+      label: 🏢 广告主所属母公司（选填）
+      description: 如果知道该品牌属于哪个集团或公司，请填写
+      placeholder: 如：上海寻梦信息技术有限公司
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 🏷️ 广告业务品类
+      options:
+        - 电商购物
+        - 金融借贷
+        - 网络游戏
+        - 二手车/房产
+        - 生活服务
+        - 社交娱乐
+        - 工具清理
+        - 在线教育/培训
+        - 医疗健康/保健
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: boycott_level
+    attributes:
+      label: 🛑 建议抵制程度 (1-5 星)
+      options:
+        - "5 - ⭐⭐⭐⭐⭐ (终身拉黑/坚决不买)"
+        - "4 - ⭐⭐⭐⭐☆ (极度恶劣)"
+        - "3 - ⭐⭐⭐☆☆ (严重流氓)"
+        - "2 - ⭐⭐☆☆☆ (中度反感)"
+        - "1 - ⭐☆☆☆☆ (轻度骚扰)"
+    validations:
+      required: true
+
+  - type: input
+    id: host_app
+    attributes:
+      label: 📲 受害宿主 APP 及平台
+      description: 哪个 APP 弹出了该广告？运行在什么系统？
+      placeholder: 如：酷狗音乐 (iOS 17.5)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: offense_type
+    attributes:
+      label: 🦹 作恶流氓手法（多选）
+      options:
+        - label: 摇一摇跳转（稍微手抖或走路就强行跳转）
+        - label: 扭一扭/倾斜跳转
+        - label: 开屏广告/全屏遮罩
+        - label: 假关闭按钮/像素级诱导（X图标点不到或点了直接下载/打开）
+        - label: 伪装系统通知/红包/短信（欺骗性视觉元素）
+        - label: 自动下载/静默安装
+        - label: 无法关闭/强制倒计时
+        - label: 应用内悬浮窗/流氓弹窗
+        - label: 恐吓欺诈/假冒杀毒清理
+        - label: 诱导付费/隐蔽扣费
+        - label: 其他恶劣行为
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 详细恶行描述与经历
+      description: 请详细描述事发过程，例如：打开软件后发生了什么？关闭按钮有何陷阱？
+      placeholder: 刚才走路时打开APP，稍微晃了一下手机，立马唤醒跳转到该购物软件；返回原APP后发现关闭按钮延迟3秒才显示...
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 📷 证据截图 / 录屏
+      description: 请在此处直接拖入上传截图或录屏，或者提供图床链接。（极其重要，无图不予收录）
+      placeholder: 请将图片直接粘贴或拖入此输入框
+    validations:
+      required: true
+
+  - type: input
+    id: host_alternatives
+    attributes:
+      label: 📲 推荐替换该宿主 APP 的干净软件（选填）
+      description: 有没有能够替代这个弹窗宿主 APP 的干净、开源或无广告软件？
+      placeholder: 如：椒盐音乐、几何天气、开源日历 Simple Calendar
+    validations:
+      required: false
+
+  - type: input
+    id: advertiser_alternatives
+    attributes:
+      label: 🛒 替代该广告主的良心消费途径（选填）
+      description: 针对该品类，有没有体验好、不耍流氓的良心购买渠道或正规机构推荐？
+      placeholder: 如：品牌自营商城、正规商业银行官方信贷
+    validations:
+      required: false

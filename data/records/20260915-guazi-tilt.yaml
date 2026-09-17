@@ -1,0 +1,32 @@
+id: "20260915-guazi-tilt"
+date: "2026-09-15"
+advertiser:
+  name: "瓜子二手车"
+  alias:
+    - "Guazi"
+    - "车好多"
+  parent_company: "车好多旧机动车经纪（北京）有限公司"
+  category: "二手车/房产"
+  boycott_level: 4
+host_app:
+  name: "优酷视频"
+  platform: "iOS"
+  version: "11.0.8"
+offense_type:
+  - "扭一扭/倾斜跳转"
+  - "开屏广告/全屏遮罩"
+description: >-
+  在地铁上打开优酷准备看缓存视频，列车轻微启动晃动导致手机倾斜度大于5度，立即被开屏广告判定为“扭动手机”，粗暴唤醒并直接跳转到瓜子二手车选车专区，返回后仍有全屏弹窗挽留。
+evidence:
+  images:
+    - "screenshots/2026/guazi_tilt_01.png"
+  video_url: ""
+host_alternatives:
+  - "Infuse / VLC / IINA (本地播放器)"
+  - "无广告纯净流媒体"
+advertiser_alternatives:
+  - "品牌官方认证二手车 / 线下正规4S店官方认证"
+tags:
+  - "扭一扭"
+  - "陀螺仪滥用"
+  - "开屏强行跳转"

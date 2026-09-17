@@ -1,0 +1,32 @@
+id: "20260905-360jie-fake-notice"
+date: "2026-09-05"
+advertiser:
+  name: "360借条"
+  alias:
+    - "360数科"
+    - "奇富科技"
+  parent_company: "奇富科技股份有限公司 (原360数科)"
+  category: "金融借贷"
+  boycott_level: 5
+host_app:
+  name: "万年历"
+  platform: "Android"
+  version: "6.2.8"
+offense_type:
+  - "伪装系统通知/红包/短信"
+  - "假关闭按钮/像素级诱导"
+description: >-
+  在查看日历农历信息时，突然弹出仿冒微信未读红包与系统到账通知的红色横幅，大字标明“200,000元备用金额度即将过期”。右上角的叉号用极浅的灰色伪装，点击后直接触发全屏热区并强制调起下载安装。
+evidence:
+  images:
+    - "screenshots/2026/360_fake_notice_01.png"
+  video_url: ""
+host_alternatives:
+  - "手机系统自带日历 (无广告)"
+  - "Simple Calendar (开源无广告)"
+advertiser_alternatives:
+  - "各大正规商业银行官方信贷渠道 (远离任何弹窗高利网贷)"
+tags:
+  - "网贷推销"
+  - "视觉欺诈"
+  - "诱导长辈"
