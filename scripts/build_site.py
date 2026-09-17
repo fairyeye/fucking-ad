@@ -183,7 +183,7 @@ def main():
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
     records = load_records()
-    print(f"📦 读取到 {len(records)} 条恶行记录，准备构建静态站...")
+    print(f"📦 读取到 {len(records)} 条案例记录，准备构建静态站...")
 
     data = compile_data(records)
 

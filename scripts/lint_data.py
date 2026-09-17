@@ -122,7 +122,7 @@ def validate_record(file_path: Path) -> list[str]:
     else:
         for item in offenses:
             if item not in ALLOWED_OFFENSE_TYPES:
-                errors.append(f"未知的作恶类型: '{item}'，可选值: {', '.join(sorted(ALLOWED_OFFENSE_TYPES))}")
+                errors.append(f"未知的交互手段类型: '{item}'，可选值: {', '.join(sorted(ALLOWED_OFFENSE_TYPES))}")
 
     # 6. Check Description
     desc = data.get("description")
@@ -140,14 +140,14 @@ def validate_record(file_path: Path) -> list[str]:
         if not isinstance(cnt, int) or cnt < 0:
             errors.append(f"字段 'outrage_count' 必须为非负整数，当前为: {cnt}")
 
-    # 8. Check Evidence (Mandatory Ironclad Evidence)
+    # 8. Check Evidence (Mandatory Evidence)
     evidence = data.get("evidence")
     if not evidence or not isinstance(evidence, dict):
-        errors.append("缺少必须字段: 'evidence' (铁证凭据)")
+        errors.append("缺少必须字段: 'evidence' (留存凭据)")
     else:
         images = evidence.get("images", [])
         if not images or not isinstance(images, list) or len(images) == 0:
-            errors.append("缺少铁证截图: 'evidence.images' 必须至少包含 1 张截图作为客观铁证！")
+            errors.append("缺少必要截图: 'evidence.images' 必须至少包含 1 张现场截图作为客观留存凭据！")
         else:
             for img in images:
                 if isinstance(img, str) and not (img.startswith("http://") or img.startswith("https://")):
@@ -168,7 +168,7 @@ def main():
         sys.exit(0)
 
     total_errors = 0
-    print(f"🔍 开始校验 {len(record_files)} 条广告作恶记录...\n")
+    print(f"🔍 开始校验 {len(record_files)} 条案例记录...\n")
 
     for file_path in record_files:
         rel_path = file_path.relative_to(PROJECT_ROOT)

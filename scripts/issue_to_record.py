@@ -109,12 +109,12 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     sections = parse_issue_markdown(body)
 
     # 1. Advertiser name
-    adv_name = extract_field(sections, ["作恶广告主", "品牌名称"], "未知品牌")
+    adv_name = extract_field(sections, ["涉事广告主", "作恶广告主", "品牌名称", "广告主", "品牌"], "未知品牌")
     # Clean possible markdown bold/links
     adv_name = re.sub(r"[*_`]", "", adv_name).strip()
 
     # 2. Parent company
-    parent_company = extract_field(sections, ["母公司", "公司全称"], "")
+    parent_company = extract_field(sections, ["母公司", "公司全称", "主体企业"], "")
     parent_company = re.sub(r"[*_`]", "", parent_company).strip()
 
     # 3. Category
@@ -126,7 +126,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             break
 
     # 4. Boycott level
-    raw_level = extract_field(sections, ["抵制程度", "星级"], "5")
+    raw_level = extract_field(sections, ["避坑指数", "劝退指数", "抵制程度", "星级"], "5")
     match_level = re.search(r"\b([1-5])\b", raw_level)
     boycott_level = int(match_level.group(1)) if match_level else 5
 
@@ -140,7 +140,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             break
 
     # 5. Host app, platform & version
-    raw_host = extract_field(sections, ["宿主 APP", "受害宿主"], "未知应用")
+    raw_host = extract_field(sections, ["载体宿主", "宿主 APP", "受害宿主"], "未知应用")
     host_name = raw_host
     platform = "Android"  # default
     if "ios" in raw_host.lower() or "iphone" in raw_host.lower() or "ipad" in raw_host.lower():
@@ -153,7 +153,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         platform = "macOS"
 
     # Extract version
-    raw_version = extract_field(sections, ["版本号", "宿主 APP 版本", "版本"], "")
+    raw_version = extract_field(sections, ["版本号", "宿主 APP 版本", "版本", "定责"], "")
     if not raw_version:
         match_ver = re.search(r"[vV]?(\d+\.\d+(?:\.\d+)?)", raw_host)
         if match_ver:
@@ -167,7 +167,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         host_name = "未知应用"
 
     # 6. Offense types
-    raw_offenses = extract_field(sections, ["作恶类型", "流氓手法", "恶劣行为"], "")
+    raw_offenses = extract_field(sections, ["骚扰与流氓手法", "诱导手法", "典型手法", "作恶类型", "流氓手法", "恶劣行为"], "")
     detected_offenses = set()
     for line in raw_offenses.splitlines():
         if "[x]" in line.lower() or "✓" in line:
@@ -181,10 +181,10 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             if kw in raw_offenses or kw in body:
                 detected_offenses.add(std_name)
     if not detected_offenses:
-        detected_offenses.add("其他恶劣行为")
+        detected_offenses.add("其他不体面的交互行为")
 
     # 7. Description
-    raw_desc = extract_field(sections, ["恶行简述", "详细恶行描述", "详细描述", "恶行描述", "经历", "简述"], "")
+    raw_desc = extract_field(sections, ["现场截图", "事发说明", "事发经过", "恶行简述", "详细恶行描述", "详细描述", "恶行描述", "经历", "简述"], "")
     cleaned_desc = re.sub(r"!\[.*?\]\(.*?\)", "", raw_desc).strip()
     cleaned_desc = re.sub(r"https?://\S+", "", cleaned_desc).strip()
     if len(cleaned_desc) >= 10:
@@ -192,7 +192,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     elif len(raw_desc.strip()) >= 10:
         description = raw_desc.strip()
     else:
-        description = f"在 {host_name} 遇到来自 {adv_name} 的流氓广告弹窗，严重打断用户正常使用体验。"
+        description = f"在 {host_name} 遇到来自 {adv_name} 的诱导弹窗，打扰正常使用体验。"
 
     # 8. Evidence Images (Ironclad proof)
     image_urls = re.findall(r'https?://[^\s\)]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)]*)?', body, re.IGNORECASE)
@@ -210,7 +210,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         date_compact = datetime.now().strftime("%Y%m%d")
 
     # 10. Alternatives
-    raw_host_alts = extract_field(sections, ["替换该宿主", "替换宿主", "干净软件", "良心替代品"], "")
+    raw_host_alts = extract_field(sections, ["体面替代", "良心替代", "替换该宿主", "替换宿主", "干净软件", "良心替代品", "替代品"], "")
     host_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_host_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
 
     # Generate record ID
