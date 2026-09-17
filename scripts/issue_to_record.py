@@ -175,15 +175,19 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         detected_offenses.add("其他恶劣行为")
 
     # 7. Description
-    description = extract_field(sections, ["详细恶行描述", "详细描述", "经历"], "")
-    if len(description) < 10:
+    raw_desc = extract_field(sections, ["恶行简述", "详细恶行描述", "详细描述", "恶行描述", "经历", "简述"], "")
+    cleaned_desc = re.sub(r"!\[.*?\]\(.*?\)", "", raw_desc).strip()
+    cleaned_desc = re.sub(r"https?://\S+", "", cleaned_desc).strip()
+    if len(cleaned_desc) >= 10:
+        description = cleaned_desc
+    elif len(raw_desc.strip()) >= 10:
+        description = raw_desc.strip()
+    else:
         description = f"在 {host_name} 遇到来自 {adv_name} 的流氓广告弹窗，严重打断用户正常使用体验。"
 
-    # 8. Evidence Images
-    raw_evidence = extract_field(sections, ["证据截图", "截图", "证据"], "")
-    image_urls = re.findall(r'https?://[^\s\)]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)]*)?', raw_evidence, re.IGNORECASE)
-    # Also find github user-attachment urls without extension
-    github_attachments = re.findall(r'https?://(?:github\.com|github-production-user-asset-[^\s\)]+|user-images\.githubusercontent\.com)[^\s\)]+', raw_evidence)
+    # 8. Evidence Images (scan whole issue body so no images are missed)
+    image_urls = re.findall(r'https?://[^\s\)]+?\.(?:png|jpe?g|gif|webp)(?:\?[^\s\)]*)?', body, re.IGNORECASE)
+    github_attachments = re.findall(r'https?://(?:github\.com|github-production-user-asset-[^\s\)]+|user-images\.githubusercontent\.com)[^\s\)]+', body)
     all_images = list(dict.fromkeys(image_urls + github_attachments))
 
     # 9. Host Alternatives

@@ -949,15 +949,15 @@
         const offenses = [];
         document.querySelectorAll('input[name="report-offense"]:checked').forEach(c => offenses.push(c.value));
         
-        // Build pre-populated Issue URL
-        const title = `【曝光】${brand} 在 ${host} 投放流氓弹窗`;
-        const body = `### 🚫 作恶广告主/品牌名称（必填）\n${brand}\n\n### 📲 受害宿主 APP 及平台（必填）\n${host}\n\n### 🦹 作恶流氓手法（多选）\n${offenses.map(o => `- [x] ${o}`).join('\n')}\n\n### 📷 证据截图与简述（必填）\n${desc ? desc + '\n\n' : ''}(请在此处 Ctrl+V 粘贴截图)`;
+        // Build pre-populated Issue URL matching report_ad.yml
+        const title = `【曝光】${brand} 在 ${host} 投放流氓弹窗广告`;
+        const body = `### 🚫 作恶广告主 / 品牌名称\n${brand}\n\n### 🏷️ 广告业务品类\n其他\n\n### 📲 受害宿主 APP 及平台\n${host}\n\n### 🦹 作恶流氓手法（多选）\n${offenses.map(o => `- [x] ${o}`).join('\n')}\n\n### 🛑 建议抵制程度 (1-5 星)\n5 - ⭐⭐⭐⭐⭐ (终身拉黑/坚决不买)\n\n### 📷 恶行简述与截图凭证\n${desc ? desc + '\n\n' : ''}(请在此处直接 Ctrl+V 粘贴截图)`;
 
         const issueUrl = `https://github.com/fairyeye/fucking-ad/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
         
         window.closeReportModal();
         window.open(issueUrl, '_blank');
-        showToast("已自动为您生成 GitHub 曝光表单，请粘贴截图并提交！");
+        showToast("已自动生成标准化曝光表单，请粘贴截图并提交！");
       };
 
       // Preview modal

@@ -1,29 +1,48 @@
-name: 📢 10秒快速曝光流氓弹窗
-description: 零门槛曝光！只需填品牌和截图，企业信息和分类由机器人自动补全
-title: "【曝光】[品牌名称] 在 [宿主APP] 投放流氓弹窗"
+name: 📢 举报流氓弹窗广告
+description: 提交一个新的流氓弹窗、摇一摇误触或诱导点击案例
+title: "【曝光】[品牌名称] 在 [宿主APP] 投放流氓弹窗广告"
 labels: ["待审核", "广告曝光"]
 body:
   - type: markdown
     attributes:
       value: |
-        ### 🔥 感谢你为天下手机用户发声！
-        **只需 3 步极速提交：填品牌 ➡️ 填宿主APP ➡️ 粘贴截图**。企业母公司与分类将由 GitHub Actions 机器人智能补全。
+        ### 🛡️ 感谢你为天下手机用户发声！
+        互联网没有记忆，但 Git 有。请提供真实截图凭据，提交后 GitHub Actions 机器人将自动解析并创建合并请求（PR），同步上线至 [在线避雷检索站](https://fairyeye.github.io/fucking-ad/)。
 
   - type: input
     id: advertiser_name
     attributes:
-      label: 🚫 作恶广告主/品牌名称（必填）
-      description: 弹窗宣传的具体品牌或产品是什么？
-      placeholder: 如：拼多多、快手极速版、360借条、得物、瓜子二手车
+      label: 🚫 作恶广告主 / 品牌名称
+      description: 弹窗宣传的具体品牌或产品是什么？（例如：拼多多、某某分期、某某二手车）
+      placeholder: 如：拼多多
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 🏷️ 广告业务品类
+      description: 选择该广告所属的行业品类
+      options:
+        - 电商购物
+        - 金融借贷
+        - 社交娱乐
+        - 网络游戏
+        - 二手车/房产
+        - 生活服务
+        - 工具清理
+        - 在线教育/培训
+        - 医疗健康/保健
+        - 其他
     validations:
       required: true
 
   - type: input
     id: host_app
     attributes:
-      label: 📲 受害宿主 APP 及平台（必填）
+      label: 📲 受害宿主 APP 及平台
       description: 哪个 APP 弹出了该广告？运行在什么系统？
-      placeholder: 如：酷狗音乐 (iOS) 或 墨迹天气 (Android)
+      placeholder: 如：酷狗音乐 (iOS) 或 万年历 (Android)
     validations:
       required: true
 
@@ -32,8 +51,7 @@ body:
     attributes:
       label: 🦹 作恶流氓手法（多选）
       options:
-        - label: 摇一摇跳转（稍微手抖或走路就强行跳转）
-          checked: true
+        - label: 摇一摇跳转（稍微手抖或走路就强行唤醒）
         - label: 假关闭按钮/像素级诱导（X图标点不到或点了直接下载/打开）
         - label: 扭一扭/倾斜手机跳转
         - label: 伪装系统通知/微信红包/到账提醒（欺骗性视觉）
@@ -42,20 +60,13 @@ body:
         - label: 自动下载/静默安装
         - label: 应用内悬浮窗/流氓牛皮癣
         - label: 恐吓欺诈/假冒杀毒清理
-
-  - type: textarea
-    id: evidence
-    attributes:
-      label: 📷 证据截图与简述（必填）
-      description: 截图直接在此处【粘贴】或【拖拽】即可上传！附上一两句简述（如：走路轻微晃动手腕即强行跳转）。
-      placeholder: 直接 Ctrl+V 粘贴截图，并简单描述经过...
-    validations:
-      required: true
+        - label: 诱导付费/隐蔽扣费
+        - label: 其他恶劣行为
 
   - type: dropdown
     id: boycott_level
     attributes:
-      label: 🛑 建议抵制程度 (默认5星终身拉黑)
+      label: 🛑 建议抵制程度 (1-5 星)
       options:
         - "5 - ⭐⭐⭐⭐⭐ (终身拉黑/坚决不买)"
         - "4 - ⭐⭐⭐⭐☆ (极度恶劣)"
@@ -63,22 +74,22 @@ body:
         - "2 - ⭐⭐☆☆☆ (中度反感)"
         - "1 - ⭐☆☆☆☆ (轻度骚扰)"
     validations:
-      required: false
+      required: true
 
-  - type: input
-    id: parent_company
+  - type: textarea
+    id: description_and_evidence
     attributes:
-      label: 🏢 广告主母公司（选填，机器人可自动补全）
-      description: 如不清楚可留空，机器人会自动匹配
-      placeholder: 留空即可，机器人会自动补全
+      label: 📷 恶行简述与截图凭证
+      description: 请简单描述事发过程，并直接将截图【拖拽】或【Ctrl+V 粘贴】上传到此输入框（极其重要，无图不予收录）。
+      placeholder: 走路手腕轻晃直接跳转唤醒；返回后关闭按键延迟3秒才显示... (在此处直接粘贴截图)
     validations:
-      required: false
+      required: true
 
   - type: input
     id: host_alternatives
     attributes:
       label: 💡 推荐良心替代品（选填）
-      description: 有没有能够替代该宿主APP的干净、开源好软件？
-      placeholder: 如：椒盐音乐、几何天气、开源日历
+      description: 有没有能够替代该宿主 APP 的干净、开源好软件推荐？
+      placeholder: 如：椒盐音乐、几何天气、开源日历 Simple Calendar
     validations:
       required: false
