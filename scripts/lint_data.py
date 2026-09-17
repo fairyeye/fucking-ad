@@ -97,10 +97,8 @@ def validate_record(file_path: Path) -> list[str]:
             errors.append(f"未知的广告品类: '{category}'，可选值: {', '.join(sorted(ALLOWED_CATEGORIES))}")
 
         boycott_level = adv.get("boycott_level")
-        if boycott_level is None:
-            errors.append("缺少必须字段: 'advertiser.boycott_level'")
-        elif not isinstance(boycott_level, int) or not (1 <= boycott_level <= 5):
-            errors.append(f"'advertiser.boycott_level' 必须是 1 到 5 之间的整数，当前为: {boycott_level}")
+        if boycott_level is not None and (not isinstance(boycott_level, int) or not (1 <= boycott_level <= 5)):
+            errors.append(f"'advertiser.boycott_level' 若存在必须是 1 到 5 之间的整数，当前为: {boycott_level}")
 
     # 4. Check Host App
     host = data.get("host_app")
@@ -164,7 +162,7 @@ def main():
 
     record_files = sorted(list(RECORDS_DIR.glob("*.yaml")) + list(RECORDS_DIR.glob("*.yml")))
     if not record_files:
-        print(f"⚠️  警告: 在 {RECORDS_DIR} 中未找到任何记录文件。")
+        print(f"ℹ️ 在 {RECORDS_DIR} 中暂无案例记录文件（等待社区提报入库）。")
         sys.exit(0)
 
     total_errors = 0

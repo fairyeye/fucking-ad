@@ -81,19 +81,6 @@ body:
         - label: 隐蔽扣费/诱导开通
         - label: 其他不体面的交互行为
 
-  - type: dropdown
-    id: boycott_level
-    attributes:
-      label: 🛑 建议避坑指数 (1-5 级)
-      options:
-        - "5 - ⭐⭐⭐⭐⭐ (建议坚决避坑 / 严重影响基本体验，敬而远之)"
-        - "4 - ⭐⭐⭐⭐☆ (强烈劝退 / 高频误触与强行唤醒)"
-        - "3 - ⭐⭐⭐☆☆ (体验极差 / 典型诱导与视觉欺诈)"
-        - "2 - ⭐⭐☆☆☆ (偶发骚扰 / 不请自来的跳转体验)"
-        - "1 - ⭐☆☆☆☆ (轻度不适 / 虽未越界但略显不体面)"
-    validations:
-      required: true
-
   - type: textarea
     id: description_and_evidence
     attributes:

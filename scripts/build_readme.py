@@ -18,14 +18,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RECORDS_DIR = PROJECT_ROOT / "data" / "records"
 README_FILE = PROJECT_ROOT / "README.md"
 
-STARS = {
-    1: "⭐☆☆☆☆ (轻度骚扰)",
-    2: "⭐⭐☆☆☆ (中度反感)",
-    3: "⭐⭐⭐☆☆ (严重流氓)",
-    4: "⭐⭐⭐⭐☆ (极度恶劣)",
-    5: "⭐⭐⭐⭐⭐ (终身拉黑/坚决不买)"
-}
-
 def load_records():
     records = []
     if not RECORDS_DIR.exists():
@@ -48,7 +40,6 @@ def generate_markdown(records):
     # Aggregations
     advertisers_map = defaultdict(lambda: {
         "count": 0,
-        "max_level": 0,
         "parent_company": set(),
         "categories": set(),
         "hosts": set(),
@@ -63,15 +54,14 @@ def generate_markdown(records):
     })
 
     offense_counter = Counter()
-    host_alternatives_map = defaultdict(set)       # host_name -> set of alternatives
-    advertiser_alternatives_map = defaultdict(set) # category -> set of alternatives
+    host_alternatives_map = defaultdict(set)
+    advertiser_alternatives_map = defaultdict(set)
 
     for r in records:
         adv = r.get("advertiser", {})
         adv_name = adv.get("name", "未知品牌")
         category = adv.get("category", "其他")
         parent = adv.get("parent_company")
-        level = adv.get("boycott_level", 3)
         
         host = r.get("host_app", {})
         host_name = host.get("name", "未知APP")
@@ -84,7 +74,6 @@ def generate_markdown(records):
             hosts_map[host_name]["offenses"][off] += 1
 
         advertisers_map[adv_name]["count"] += 1
-        advertisers_map[adv_name]["max_level"] = max(advertisers_map[adv_name]["max_level"], level)
         advertisers_map[adv_name]["categories"].add(category)
         if parent:
             advertisers_map[adv_name]["parent_company"].add(parent)
@@ -115,17 +104,18 @@ def generate_markdown(records):
     sorted_records = sorted(records, key=lambda x: (str(x.get("date", "")), str(x.get("id", ""))), reverse=True)
 
     lines = []
-    lines.append("# 🛑 fucking-ad (移动端流氓广告与诱导跳转实录)")
+    lines.append("# fucking-ad")
+    lines.append("### 移动端不良广告与诱导跳转留存实录")
     lines.append("")
     lines.append("> 🌐 **在线避雷检索站（即时检索 · 移动端适配）**：**[https://fairyeye.github.io/fucking-ad/](https://fairyeye.github.io/fucking-ad/)**  ")
     lines.append("> 💬 **「广告心理学深谙遗忘效应——几个月后你忘了当初是在哪个流氓弹窗里见过的它，只觉得耳熟，于是在货架前付了款。」**  ")
-    lines.append("> ⚡ **「互联网也许健忘，但开源社区记性很好。以图为证，客观留存移动端各类“反客为主”的广告艺术与操作奇观。」**")
+    lines.append("> ⚡ **「互联网也许健忘，但开源社区记性很好。以图为证，客观留存移动端各类“反客为主”的广告艺术与交互奇观。」**")
     lines.append("")
     lines.append("[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)")
-    lines.append("[![Online Portal](https://img.shields.io/badge/Online%20Web-在线检索站-rose.svg)](https://fairyeye.github.io/fucking-ad/)")
-    lines.append(f"![Total Records](https://img.shields.io/badge/收录案例-{total_records}起-red.svg)")
-    lines.append(f"![Boycotted Brands](https://img.shields.io/badge/避雷品牌-{unique_advertisers}家-orange.svg)")
-    lines.append(f"![Host Apps](https://img.shields.io/badge/涉事宿主-{unique_hosts}款-critical.svg)")
+    lines.append("[![Online Portal](https://img.shields.io/badge/Online%20Web-在线检索站-cyan.svg)](https://fairyeye.github.io/fucking-ad/)")
+    lines.append(f"![Total Records](https://img.shields.io/badge/收录案例-{total_records}起-slate.svg)")
+    lines.append(f"![Advertiser Brands](https://img.shields.io/badge/涉事品牌-{unique_advertisers}家-slate.svg)")
+    lines.append(f"![Host Apps](https://img.shields.io/badge/载体应用-{unique_hosts}款-slate.svg)")
     lines.append("[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)")
     lines.append("")
     lines.append("---")
@@ -152,108 +142,120 @@ def generate_markdown(records):
     lines.append("## 📊 案例总览与统计")
     lines.append("")
     lines.append(f"- 📝 **已收录案例样本**：`{total_records}` 起")
-    lines.append(f"- 🚫 **涉及广告主品牌**：`{unique_advertisers}` 家")
-    lines.append(f"- 📲 **高频弹窗宿主应用**：`{unique_hosts}` 款")
+    lines.append(f"- 🏢 **涉及广告主品牌**：`{unique_advertisers}` 家")
+    lines.append(f"- 📱 **载体宿主应用数**：`{unique_hosts}` 款")
     lines.append("")
-    lines.append("### 🔥 典型诱导与打扰手段分布")
-    lines.append("")
-    lines.append("| 手段类型 | 出现频次 | 占比 | 典型表现 |")
-    lines.append("| :--- | :---: | :---: | :--- |")
-    sorted_offenses = sorted(offense_counter.items(), key=lambda x: (-x[1], x[0]))
-    for off_name, off_count in sorted_offenses:
-        pct = f"{(off_count / total_records * 100):.1f}%" if total_records > 0 else "0%"
-        lines.append(f"| **{off_name}** | `{off_count}` | {pct} | 滥用传感器、微小假关闭按钮、视觉欺诈 |")
-    lines.append("")
+
+    if total_records == 0:
+        lines.append("> 💡 **名录初始化就绪**：当前暂无收录案例。天下手机用户苦不良弹窗久矣，欢迎[通过 Issue 提交案例](../../issues/new?template=report_ad.yml)成为第一个贡献者！")
+        lines.append("")
+    else:
+        lines.append("### 🔥 典型诱导与打扰手段分布")
+        lines.append("")
+        lines.append("| 手段类型 | 出现频次 | 占比 | 典型表现 |")
+        lines.append("| :--- | :---: | :---: | :--- |")
+        sorted_offenses = sorted(offense_counter.items(), key=lambda x: (-x[1], x[0]))
+        for off_name, off_count in sorted_offenses:
+            pct = f"{(off_count / total_records * 100):.1f}%"
+            lines.append(f"| **{off_name}** | `{off_count}` | {pct} | 滥用传感器、微小假关闭按钮、视觉欺诈 |")
+        lines.append("")
+
     lines.append("---")
     lines.append("")
-    lines.append("## 🛑 涉事品牌重点关注名录 (消费避雷指南)")
+    lines.append("## 🏢 涉事品牌关注名录 (消费避雷参考)")
     lines.append("")
     lines.append("> 提示：消费即投票。日常消费与服务选购时，可参考以下频繁使用诱导式弹窗投放的品牌名录。")
     lines.append("")
-    lines.append("| 品牌名称 | 所属母公司 / 关联主体 | 涉及品类 | 留存频次 | 劝退指数 | 常见载体宿主 |")
-    lines.append("| :--- | :--- | :--- | :---: | :--- | :--- |")
 
-    # Sort advertisers by count desc, max_level desc, then name
-    sorted_advs = sorted(advertisers_map.items(), key=lambda x: (x[1]["count"], x[1]["max_level"], x[0]), reverse=True)
-    for adv_name, info in sorted_advs:
-        parent_str = "、".join(sorted(info["parent_company"])) if info["parent_company"] else "未知"
-        cat_str = "、".join(sorted(info["categories"]))
-        level_str = STARS.get(info["max_level"], "⭐⭐⭐☆☆")
-        hosts_list = sorted(list(info["hosts"]))
-        hosts_str = "、".join(hosts_list[:3]) + (" 等" if len(hosts_list) > 3 else "")
-        lines.append(f"| **{adv_name}** | {parent_str} | {cat_str} | `{info['count']}` | {level_str} | {hosts_str} |")
-
+    if advertisers_map:
+        lines.append("| 品牌名称 | 所属主体企业 | 涉及品类 | 留存案例数 | 常见载体宿主 |")
+        lines.append("| :--- | :--- | :--- | :---: | :--- |")
+        sorted_advs = sorted(advertisers_map.items(), key=lambda x: (x[1]["count"], x[0]), reverse=True)
+        for adv_name, info in sorted_advs:
+            parent_str = "、".join(sorted(info["parent_company"])) if info["parent_company"] else "未知"
+            cat_str = "、".join(sorted(info["categories"]))
+            hosts_list = sorted(list(info["hosts"]))
+            hosts_str = "、".join(hosts_list[:3]) + (" 等" if len(hosts_list) > 3 else "")
+            lines.append(f"| **{adv_name}** | {parent_str} | {cat_str} | `{info['count']}` | {hosts_str} |")
+    else:
+        lines.append("> *当前暂无涉事品牌记录，等待社区提报。*")
     lines.append("")
+
     lines.append("---")
     lines.append("")
-    lines.append("## 📱 宿主 APP 观察榜 (高频弹窗发生地)")
+    lines.append("## 📱 载体宿主应用观察榜 (高频弹窗发生地)")
     lines.append("")
-    lines.append("| 宿主 APP | 平台 | 留存案例数 | 典型手段 | 常见推广品牌 | 推荐替代方案 |")
-    lines.append("| :--- | :---: | :---: | :--- | :--- | :--- |")
-    
-    sorted_hosts = sorted(hosts_map.items(), key=lambda x: (x[1]["count"], x[0]), reverse=True)
-    for host_name, info in sorted_hosts:
-        plat_str = " / ".join(sorted(info["platforms"]))
-        sorted_host_offenses = sorted(info["offenses"].items(), key=lambda x: (-x[1], x[0]))
-        top_offenses = "、".join([k for k, _ in sorted_host_offenses[:2]])
-        advs_list = sorted(list(info["advertisers"]))
-        top_advs = "、".join(advs_list[:3])
-        alts = host_alternatives_map.get(host_name, set())
-        sorted_alts = sorted(list(alts))
-        alt_str = "、".join(sorted_alts[:2]) if sorted_alts else "寻找纯净替代"
-        lines.append(f"| **{host_name}** | {plat_str} | `{info['count']}` | {top_offenses} | {top_advs} | {alt_str} |")
 
+    if hosts_map:
+        lines.append("| 宿主 APP | 平台 | 留存案例数 | 典型手段 | 常见推广品牌 | 推荐替代方案 |")
+        lines.append("| :--- | :---: | :---: | :--- | :--- | :--- |")
+        sorted_hosts = sorted(hosts_map.items(), key=lambda x: (x[1]["count"], x[0]), reverse=True)
+        for host_name, info in sorted_hosts:
+            plat_str = " / ".join(sorted(info["platforms"]))
+            sorted_host_offenses = sorted(info["offenses"].items(), key=lambda x: (-x[1], x[0]))
+            top_offenses = "、".join([k for k, _ in sorted_host_offenses[:2]])
+            advs_list = sorted(list(info["advertisers"]))
+            top_advs = "、".join(advs_list[:3])
+            alts = host_alternatives_map.get(host_name, set())
+            sorted_alts = sorted(list(alts))
+            alt_str = "、".join(sorted_alts[:2]) if sorted_alts else "寻找纯净替代"
+            lines.append(f"| **{host_name}** | {plat_str} | `{info['count']}` | {top_offenses} | {top_advs} | {alt_str} |")
+    else:
+        lines.append("> *当前暂无宿主应用记录，等待社区提报。*")
     lines.append("")
+
     lines.append("---")
     lines.append("")
-    lines.append("## 📋 最新收录的案例档案库")
-    lines.append("")
-    lines.append("<details>")
-    lines.append("<summary><b>👉 点击展开查看所有留存的历史案例细节（按日期倒序）</b></summary>")
+    lines.append("## 📋 最新案例档案库")
     lines.append("")
 
-    for r in sorted_records:
-        rid = r.get("id")
-        date = r.get("date")
-        adv = r.get("advertiser", {})
-        host = r.get("host_app", {})
-        offenses = "、".join([f"`{o}`" for o in r.get("offense_type", [])])
-        desc = r.get("description", "")
-        level = adv.get("boycott_level", 3)
-        level_star = STARS.get(level, "⭐⭐⭐☆☆")
-        evidence = r.get("evidence", {})
-        images = evidence.get("images", [])
-
-        lines.append(f"### 📍 [{date}] {adv.get('name')} 弹窗留存 (`{rid}`)")
-        lines.append(f"- **涉事广告主**：{adv.get('name')}（{adv.get('category')} / 主体企业：{adv.get('parent_company', '未知')}）")
-        lines.append(f"- **建议避坑指数**：{level_star}")
-        lines.append(f"- **载体宿主 APP**：{host.get('name')} ({host.get('platform', '未知')} {host.get('version', '')})")
-        lines.append(f"- **主要表现手法**：{offenses}")
-        lines.append(f"- **事发经过记录**：{desc}")
-        
-        if images:
-            img_links = []
-            for img in images:
-                if img.startswith("http"):
-                    img_links.append(f"[查看网络截图]({img})")
-                else:
-                    img_links.append(f"[查看截图凭证]({img})")
-            lines.append(f"- **截图凭据**：{' ｜ '.join(img_links)}")
-        
-        h_alts = r.get("host_alternatives", [])
-        if h_alts:
-            lines.append(f"- **📲 推荐体面替代软件**：{'、'.join(h_alts)}")
-
-        a_alts = r.get("advertiser_alternatives", [])
-        if a_alts:
-            lines.append(f"- **🛒 消费替代渠道参考**：{'、'.join(a_alts)}")
-
-        lines.append(f"- **原始数据源**：[`data/records/{r['_file']}`](data/records/{r['_file']})")
+    if sorted_records:
+        lines.append("<details>")
+        lines.append("<summary><b>👉 点击展开查看所有留存的历史案例细节（按日期倒序）</b></summary>")
         lines.append("")
-        lines.append("---")
 
-    lines.append("</details>")
+        for r in sorted_records:
+            rid = r.get("id")
+            date = r.get("date")
+            adv = r.get("advertiser", {})
+            host = r.get("host_app", {})
+            offenses = "、".join([f"`{o}`" for o in r.get("offense_type", [])])
+            desc = r.get("description", "")
+            evidence = r.get("evidence", {})
+            images = evidence.get("images", [])
+
+            lines.append(f"### 📍 [{date}] {adv.get('name')} 弹窗留存 (`{rid}`)")
+            lines.append(f"- **涉事广告主**：{adv.get('name')}（{adv.get('category')} / 主体企业：{adv.get('parent_company', '未知')}）")
+            lines.append(f"- **载体宿主 APP**：{host.get('name')} ({host.get('platform', '未知')} {host.get('version', '')})")
+            lines.append(f"- **主要表现手法**：{offenses}")
+            lines.append(f"- **事发经过记录**：{desc}")
+            
+            if images:
+                img_links = []
+                for img in images:
+                    if img.startswith("http"):
+                        img_links.append(f"[查看网络截图]({img})")
+                    else:
+                        img_links.append(f"[查看截图凭证]({img})")
+                lines.append(f"- **截图凭据**：{' ｜ '.join(img_links)}")
+            
+            h_alts = r.get("host_alternatives", [])
+            if h_alts:
+                lines.append(f"- **📲 推荐体面替代软件**：{'、'.join(h_alts)}")
+
+            a_alts = r.get("advertiser_alternatives", [])
+            if a_alts:
+                lines.append(f"- **🛒 消费替代渠道参考**：{'、'.join(a_alts)}")
+
+            lines.append(f"- **原始数据源**：[`data/records/{r['_file']}`](data/records/{r['_file']})")
+            lines.append("")
+            lines.append("---")
+
+        lines.append("</details>")
+    else:
+        lines.append("> *当前暂无案例归档。*")
     lines.append("")
+
     lines.append("---")
     lines.append("")
     lines.append("## 💡 纯净替代品推荐库 (支持体面商业与良心软件)")
@@ -266,6 +268,8 @@ def generate_markdown(records):
     if host_alternatives_map:
         for h_name, alts in sorted(host_alternatives_map.items()):
             lines.append(f"- **替代【{h_name}】**：{'、'.join(sorted(alts))}")
+    else:
+        lines.append("> *暂无推荐替代方案，欢迎提交推荐。*")
     lines.append("")
 
     lines.append("### 2. 替代消费途径推荐（把预算留给尊重用户的品牌）")
@@ -273,32 +277,36 @@ def generate_markdown(records):
     if advertiser_alternatives_map:
         for cat, alts in sorted(advertiser_alternatives_map.items()):
             lines.append(f"- **{cat}品类**：{'、'.join(sorted(alts))}")
+    else:
+        lines.append("> *暂无消费替代推荐，欢迎提交推荐。*")
     lines.append("")
 
     lines.append("---")
     lines.append("")
-    lines.append("## 🤝 如何参与贡献？")
+    lines.append("## 🤖 自动化收录流程 (如何提交 Issue 自动生成 PR)")
     lines.append("")
-    lines.append("欢迎大家共同补充与维护这一名录！可以通过以下两种方式提交线索：")
+    lines.append("本项目已配置 GitHub Actions 自动化建档机器人：")
     lines.append("")
-    lines.append("### 方式一：直接提 Issue 提交线索（推荐，免写代码）")
-    lines.append("1. 进入项目的 [Issues](../../issues/new?template=report_ad.yml) 页面；")
-    lines.append("2. 选择 **「提交流氓广告/诱导跳转案例」** 模板；")
-    lines.append("3. 按照提示填写：品牌名称、宿主APP、截图凭据；")
-    lines.append("4. 维护者审核后会自动转化为结构化数据并合入主分支。")
+    lines.append("1. **进入提交页面**：点击访问 [New Issue](../../issues/new?template=report_ad.yml)，选择 **「提交流氓广告/诱导跳转案例」**。")
+    lines.append("2. **按模板填写信息**：")
+    lines.append("   - **品牌名称**（必填，如拼多多、快手极速版、360借条等）；")
+    lines.append("   - **载体宿主 APP**（必填，如酷狗音乐、万年历等）；")
+    lines.append("   - **APP 版本号**（推荐填写，如 `12.0.1`，方便精准定责）；")
+    lines.append("   - **事发捕获日期**（选填，留空默认为提交当天）；")
+    lines.append("   - **勾选典型手法**（多选，如摇一摇、假关闭按钮等）；")
+    lines.append("   - **现场截图凭据（核心必须项）**：**在说明框中直接 Ctrl+V / Command+V 粘贴截图**，或拖拽图片上传生成 GitHub 图片链接。**无截图的提交将无法自动生成 PR**。")
+    lines.append("3. **机器人自动转换**：")
+    lines.append("   - 提交 Issue 后，GitHub Actions 机器人将在 30 秒内自动触发。")
+    lines.append("   - 机器人自动解析表单、下载或转录截图、校验数据格式并自动创建对应的 Pull Request。")
+    lines.append("4. **合并发布**：")
+    lines.append("   - 维护团队核实证据真实性后点击 Merge，系统自动同步更新 README 与在线检索站！")
     lines.append("")
-    lines.append("### 方式二：提交 Pull Request（开发者通道）")
-    lines.append("1. Fork 本仓库并克隆到本地；")
-    lines.append("2. 将截图放入 `screenshots/YYYY/` 目录下；")
-    lines.append("3. 在 `data/records/` 下按照格式新增一条 `YYYYMMDD-品牌名-手法.yaml`；")
-    lines.append("4. 本地运行校验和编译：")
-    lines.append("   ```bash")
-    lines.append("   python3 scripts/lint_data.py")
-    lines.append("   python3 scripts/build_readme.py")
-    lines.append("   ```")
-    lines.append("5. 提交 PR，CI 会自动检查格式。")
-    lines.append("")
-    lines.append("详细规范请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。")
+    lines.append("> ⚠️ **仓库管理员配置须知 (如自动 PR 未触发请检查此项)**：  ")
+    lines.append("> 新创建的 GitHub 仓库默认限制了机器人创建 PR。请仓库所有者确认开启以下配置：  ")
+    lines.append("> 1. 进入仓库 **Settings** -> **Actions** -> **General**；  ")
+    lines.append("> 2. 滑到页面下方 **Workflow permissions**；  ")
+    lines.append("> 3. 勾选 **「Read and write permissions」**；  ")
+    lines.append("> 4. 必须勾选 **「Allow GitHub Actions to create and approve pull requests」** 并保存。")
     lines.append("")
     lines.append("---")
     lines.append("")
@@ -306,7 +314,7 @@ def generate_markdown(records):
     lines.append("")
     lines.append("1. **事实优先**：所有入库记录必须有真实截屏、录屏或网络公开报道等客观证据支撑，拒绝毫无根据的捏造与恶意中伤。")
     lines.append("2. **就事论事**：记录针对的是「具体的流氓广告投放与诱导行为」，旨在维护消费者的知情权与选择权。")
-    lines.append("3. **改过即更新**：若某产品/品牌已全面下架整改此类流氓广告，可提交 Issue 并附上整改证据，项目将在记录中标记「已整改」并调整评级。")
+    lines.append("3. **改过即更新**：若某产品/品牌已全面下架整改此类流氓广告，可提交 Issue 并附上整改证据，项目将在记录中标记「已整改」。")
     lines.append("")
     lines.append("---")
     lines.append("### License")

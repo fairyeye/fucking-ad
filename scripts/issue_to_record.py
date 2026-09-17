@@ -125,11 +125,6 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
             category = cat
             break
 
-    # 4. Boycott level
-    raw_level = extract_field(sections, ["避坑指数", "劝退指数", "抵制程度", "星级"], "5")
-    match_level = re.search(r"\b([1-5])\b", raw_level)
-    boycott_level = int(match_level.group(1)) if match_level else 5
-
     # Auto-fill from KNOWN_BRANDS if missing
     for brand_key, brand_info in KNOWN_BRANDS.items():
         if brand_key.lower() in adv_name.lower() or adv_name.lower() in brand_key.lower():
@@ -229,8 +224,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
         "date": date_str,
         "advertiser": {
             "name": adv_name,
-            "category": category,
-            "boycott_level": boycott_level
+            "category": category
         },
         "host_app": host_dict,
         "offense_type": sorted(list(detected_offenses)),
@@ -254,7 +248,7 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     with open(out_file, "w", encoding="utf-8") as f:
         yaml.safe_dump(record, f, allow_unicode=True, sort_keys=False)
 
-    return out_file
+    return out_file, len(all_images) > 0
 
 def main():
     if len(sys.argv) < 2:
@@ -275,10 +269,15 @@ def main():
         sys.exit(1)
 
     issue_number = issue.get("number", 0)
-    out_path = process_issue(issue, issue_number)
-    print(f"🎉 成功由 Issue #{issue_number} 转化并生成记录文件: {out_path.name}")
-    print(f"::set-output name=record_file::{out_path.name}")
-    print(f"::set-output name=record_id::{out_path.stem}")
+    out_path, has_images = process_issue(issue, issue_number)
+    print(f"🎉 成功由 Issue #{issue_number} 转化并生成记录文件: {out_path.name} (含截图: {has_images})")
+
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"record_file={out_path.name}\n")
+            f.write(f"record_id={out_path.stem}\n")
+            f.write(f"has_images={'true' if has_images else 'false'}\n")
 
 if __name__ == "__main__":
     main()
