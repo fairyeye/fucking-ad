@@ -7,6 +7,7 @@ import os
 import sys
 import re
 import json
+import hashlib
 from pathlib import Path
 from datetime import datetime
 
@@ -241,9 +242,28 @@ def process_issue(issue_data: dict, issue_number: int):
     raw_adv_alts = extract_field(sections, ["替代品牌", "体面品牌", "替换广告主"], "")
     adv_alternatives = [a.strip() for a in re.split(r"[,，、\n]+", raw_adv_alts) if a.strip() and a.strip() not in ["_No response_", "无"]]
 
-    # Generate record ID
-    clean_brand = re.sub(r"[^\w]+", "", adv_name) or "ad"
-    record_id = f"{date_compact}-issue{issue_number}-{clean_brand}"
+    # Generate strictly ASCII-safe record ID
+    COMMON_SLUGS = {
+        "拼多多": "pdd", "抖音": "douyin", "快手": "kuaishou", "淘宝": "taobao",
+        "淘特": "taote", "京东": "jd", "360": "360", "美团": "meituan",
+        "百度": "baidu", "腾讯": "tencent", "酷狗": "kugou", "酷安": "coolapk",
+        "瓜子": "guazi", "转转": "zhuanzhuan", "得物": "dewu", "小红书": "xhs",
+        "爱奇艺": "iqiyi", "优酷": "youku", "腾讯视频": "vqq", "知乎": "zhihu",
+        "微博": "weibo", "贴吧": "tieba", "头条": "toutiao", "度小满": "duxiaoman"
+    }
+    clean_slug = ""
+    brand_lower = adv_name.lower().strip()
+    for k, v in COMMON_SLUGS.items():
+        if k in brand_lower:
+            clean_slug = v
+            break
+    if not clean_slug:
+        ascii_chars = re.sub(r"[^a-zA-Z0-9]+", "", brand_lower)
+        if ascii_chars:
+            clean_slug = ascii_chars[:12]
+        else:
+            clean_slug = hashlib.md5(adv_name.encode("utf-8")).hexdigest()[:6]
+    record_id = f"{date_compact}-issue{issue_number}-{clean_slug}"
 
     host_dict = {
         "name": host_name,
