@@ -1,0 +1,22 @@
+id: 20260917-issue2-douyin
+date: '2026-09-17'
+advertiser:
+  name: 抖音商城
+  category: 电商购物
+  parent_company: 北京字节跳动科技有限公司
+host_app:
+  name: 酷安
+  platform: Android
+offense_type:
+- 假关闭按钮/像素级诱导
+- 开屏广告/全屏遮罩
+- 无法关闭/强制倒计时
+description: <img width="534" height="1186" alt="Image" src=" />
+evidence:
+  images:
+  - https://github.com/user-attachments/assets/08ec246f-be2d-446d-8922-d2cbd6618a65
+  video_url: ''
+tags:
+- 电商购物
+- 假关闭按钮
+- 开屏广告
