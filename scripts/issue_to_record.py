@@ -46,6 +46,29 @@ ALLOWED_CATEGORIES = [
     "医疗健康/保健", "其他"
 ]
 
+KNOWN_BRANDS = {
+    "拼多多": {"parent": "上海寻梦信息技术有限公司", "category": "电商购物", "level": 5},
+    "pdd": {"parent": "上海寻梦信息技术有限公司", "category": "电商购物", "level": 5},
+    "快手": {"parent": "北京快手科技有限公司", "category": "社交娱乐", "level": 4},
+    "快手极速版": {"parent": "北京快手科技有限公司", "category": "社交娱乐", "level": 4},
+    "360借条": {"parent": "奇富科技股份有限公司 (原360数科)", "category": "金融借贷", "level": 5},
+    "奇富科技": {"parent": "奇富科技股份有限公司", "category": "金融借贷", "level": 5},
+    "抖音": {"parent": "北京字节跳动科技有限公司", "category": "社交娱乐", "level": 4},
+    "抖音极速版": {"parent": "北京字节跳动科技有限公司", "category": "社交娱乐", "level": 4},
+    "今日头条": {"parent": "北京字节跳动科技有限公司", "category": "社交娱乐", "level": 4},
+    "得物": {"parent": "上海识装信息科技有限公司", "category": "电商购物", "level": 4},
+    "瓜子二手车": {"parent": "车好多旧机动车经纪（北京）有限公司", "category": "二手车/房产", "level": 4},
+    "转转": {"parent": "北京转转精神科技有限责任公司", "category": "二手车/房产", "level": 4},
+    "淘宝": {"parent": "阿里巴巴（中国）网络技术有限公司", "category": "电商购物", "level": 4},
+    "淘特": {"parent": "阿里巴巴（中国）网络技术有限公司", "category": "电商购物", "level": 4},
+    "京东": {"parent": "北京京东世纪贸易有限公司", "category": "电商购物", "level": 4},
+    "京东金条": {"parent": "京东科技控股股份有限公司", "category": "金融借贷", "level": 5},
+    "京东白条": {"parent": "京东科技控股股份有限公司", "category": "金融借贷", "level": 5},
+    "度小满": {"parent": "度小满科技（北京）有限公司", "category": "金融借贷", "level": 5},
+    "有钱花": {"parent": "度小满科技（北京）有限公司", "category": "金融借贷", "level": 5},
+    "美团": {"parent": "北京三快科技有限公司", "category": "生活服务", "level": 3}
+}
+
 def parse_issue_markdown(body: str) -> dict:
     """Parse sections delimited by ### Title"""
     sections = {}
@@ -106,6 +129,15 @@ def process_issue(issue_data: dict, issue_number: int) -> Path:
     raw_level = extract_field(sections, ["抵制程度", "星级"], "5")
     match_level = re.search(r"\b([1-5])\b", raw_level)
     boycott_level = int(match_level.group(1)) if match_level else 5
+
+    # Auto-fill from KNOWN_BRANDS if missing
+    for brand_key, brand_info in KNOWN_BRANDS.items():
+        if brand_key.lower() in adv_name.lower() or adv_name.lower() in brand_key.lower():
+            if not parent_company:
+                parent_company = brand_info.get("parent", "")
+            if category == "其他":
+                category = brand_info.get("category", "其他")
+            break
 
     # 5. Host app & platform
     raw_host = extract_field(sections, ["宿主 APP", "受害宿主"], "未知应用")
