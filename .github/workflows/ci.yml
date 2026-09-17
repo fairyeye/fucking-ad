@@ -30,3 +30,8 @@ jobs:
       - name: Check README synchronization
         run: |
           python scripts/build_readme.py --check
+
+      - name: Build Web Portal (docs/)
+        run: |
+          python scripts/build_site.py
+

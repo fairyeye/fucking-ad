@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fucking-ad 🛑 弹窗广告恶行录 & 避雷检索站</title>
+  <meta name="description" content="记录APP流氓弹窗、摇一摇、假关闭按钮等恶行。互联网没有记忆，但Git有。你敢弹窗骚扰，我就永远拉黑你家产品。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛑</text></svg>">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              900: '#881337',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [v-cloak] { display: none; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-rose-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-slate-950/85 backdrop-blur-md border-b border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 gap-4">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-3 shrink-0 group">
+          <span class="text-2xl transform group-hover:scale-110 transition-transform">🛑</span>
+          <div>
+            <span class="text-lg font-black tracking-tight text-white group-hover:text-rose-400 transition-colors">fucking-ad</span>
+            <span class="hidden sm:inline-block ml-2 text-xs font-medium px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">弹窗恶行录</span>
+          </div>
+        </a>
+
+        <!-- Top Stats Badges -->
+        <div class="hidden md:flex items-center gap-2 text-xs">
+          <div class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+            收录恶行 <span id="stat-records" class="font-bold text-rose-400">0</span>
+          </div>
+          <div class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+            抵制品牌 <span id="stat-advertisers" class="font-bold text-amber-400">0</span>
+          </div>
+          <div class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+            作恶宿主 <span id="stat-hosts" class="font-bold text-sky-400">0</span>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="flex items-center gap-3">
+          <a href="https://github.com/fairyeye/fucking-ad/issues/new?template=report_ad.yml" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-lg shadow-rose-900/30">
+            <span>📢</span>
+            <span>举报恶行</span>
+          </a>
+          <a href="https://github.com/fairyeye/fucking-ad" target="_blank" class="p-2 text-slate-400 hover:text-white transition-colors" title="GitHub 仓库">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-8 pb-6 border-b border-slate-800 bg-gradient-to-b from-slate-900/60 to-slate-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        弹窗广告恶行录 & 终身抵制黑名单
+      </h1>
+      <p class="max-w-2xl mx-auto text-sm sm:text-base text-slate-400">
+        “每一次你被弹窗恶心后记住的品牌，都是流氓营销的得逞。”<br class="hidden sm:inline">
+        你敢弹窗骚扰，我就永远拉黑你家产品。消费即投票，用良币驱逐劣币。
+      </p>
+
+      <!-- Search Input Container -->
+      <div class="mt-6 max-w-2xl mx-auto">
+        <div class="relative flex items-center">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="搜品牌（拼多多、快手）、母公司、宿主APP（酷狗、墨迹）或流氓手法..."
+            class="w-full pl-11 pr-24 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all shadow-inner"
+          >
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5">
+            <button id="clear-search-btn" class="hidden text-xs px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">✕ 清空</button>
+            <kbd class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800 border border-slate-700 rounded">/</kbd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Tab Navigation -->
+  <div class="sticky top-16 z-20 bg-slate-950/95 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+      <!-- Tabs -->
+      <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 text-sm no-scrollbar">
+        <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-lg border border-slate-800">
+          <button data-tab="records" class="tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all bg-rose-600 text-white">
+            📋 恶行档案 (<span id="tab-count-records">0</span>)
+          </button>
+          <button data-tab="advertisers" class="tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-400 hover:text-white">
+            🛑 品牌黑榜 (<span id="tab-count-advertisers">0</span>)
+          </button>
+          <button data-tab="hosts" class="tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-400 hover:text-white">
+            📱 宿主曝光榜 (<span id="tab-count-hosts">0</span>)
+          </button>
+          <button data-tab="alternatives" class="tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-400 hover:text-white">
+            💡 良心替代推荐
+          </button>
+        </div>
+
+        <!-- Filter toggle dropdown/indicator -->
+        <div class="flex items-center gap-2 shrink-0 text-xs text-slate-400">
+          <span id="match-status">加载中...</span>
+        </div>
+      </div>
+
+      <!-- Quick Filter Pills -->
+      <div id="filter-pills-row" class="flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 text-xs no-scrollbar">
+        <span class="text-slate-400 shrink-0 font-medium mr-1">快捷筛选:</span>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-rose-500 bg-rose-500/20 text-rose-300 active" data-filter-type="all" data-filter-val="">全部</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="offense" data-filter-val="摇一摇跳转">摇一摇</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="offense" data-filter-val="假关闭按钮/像素级诱导">假关闭按钮</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="offense" data-filter-val="扭一扭/倾斜跳转">扭一扭/倾斜</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="category" data-filter-val="电商购物">电商</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="category" data-filter-val="金融借贷">金融借贷</button>
+        <button class="filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700" data-filter-type="level" data-filter-val="5">⭐⭐⭐⭐⭐ 终身拉黑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- View: Records Card Grid -->
+    <div id="view-records" class="tab-view block">
+      <div id="records-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards dynamically injected -->
+      </div>
+      <div id="records-empty" class="hidden text-center py-16 text-slate-400">
+        <p class="text-4xl mb-3">🔍</p>
+        <p class="text-lg font-medium text-slate-200">没有找到匹配的恶行记录</p>
+        <p class="text-sm mt-1">换个关键词试试，或点击上方“清空”筛选条件</p>
+      </div>
+    </div>
+
+    <!-- View: Advertisers List -->
+    <div id="view-advertisers" class="tab-view hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 bg-slate-900/80">
+          <h2 class="font-bold text-lg text-white">🛑 广告主黑榜 (坚决不买 / 终身抵制)</h2>
+          <p class="text-xs text-slate-400 mt-1">消费即投票。当你需要消费时，请尽量避开以下投放流氓广告的品牌及旗下关联主体。</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-xs border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">抵制品牌</th>
+                <th class="py-3 px-4">所属母公司 / 主体</th>
+                <th class="py-3 px-4">品类</th>
+                <th class="py-3 px-4 text-center">作恶次数</th>
+                <th class="py-3 px-4">抵制指数</th>
+                <th class="py-3 px-4">勾结的宿主APP</th>
+                <th class="py-3 px-4">良心消费替代推荐</th>
+              </tr>
+            </thead>
+            <tbody id="advertisers-tbody" class="divide-y divide-slate-800 text-slate-200">
+              <!-- Dynamically injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Host Apps Watchlist -->
+    <div id="view-hosts" class="tab-view hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 bg-slate-900/80">
+          <h2 class="font-bold text-lg text-white">📱 宿主 APP 作恶榜 (流氓弹窗高发地)</h2>
+          <p class="text-xs text-slate-400 mt-1">这些软件为牟取暴利，严重践踏用户体验，纵容并弹出了以下流氓广告。</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-xs border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">宿主 APP</th>
+                <th class="py-3 px-4">平台</th>
+                <th class="py-3 px-4 text-center">纵容投放次数</th>
+                <th class="py-3 px-4">主要流氓手法</th>
+                <th class="py-3 px-4">频繁推送的广告主</th>
+                <th class="py-3 px-4">推荐卸载并替换为</th>
+              </tr>
+            </thead>
+            <tbody id="hosts-tbody" class="divide-y divide-slate-800 text-slate-200">
+              <!-- Dynamically injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Ethical Alternatives Directory -->
+    <div id="view-alternatives" class="tab-view hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Host App Alternatives -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">📲</span>
+            <div>
+              <h2 class="text-base font-bold text-white">纯净宿主软件替代品</h2>
+              <p class="text-xs text-slate-400">卸载频繁弹窗软件，用这批干净无广告的好产品代替：</p>
+            </div>
+          </div>
+          <div id="host-alternatives-list" class="space-y-3">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+
+        <!-- Advertiser Alternatives -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">🛒</span>
+            <div>
+              <h2 class="text-base font-bold text-white">良心消费途径与渠道</h2>
+              <p class="text-xs text-slate-400">把钱花在真正尊重用户的品牌上：</p>
+            </div>
+          </div>
+          <div id="advertiser-alternatives-list" class="space-y-3">
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Image Preview Modal -->
+  <div id="image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+      <img id="modal-img" src="" alt="截图证据" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl border border-slate-700 object-contain">
+      <p id="modal-caption" class="mt-3 text-xs text-slate-400 text-center"></p>
+      <button id="close-modal-btn" class="absolute -top-10 right-0 text-white text-2xl hover:text-rose-400 transition-colors p-2">✕</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-rose-600 text-white text-xs font-semibold shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    提示信息
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-medium text-slate-300">🛑 fucking-ad (流氓弹窗广告恶行录) · 开源公共维权项目</p>
+      <p>所有记录均附带真实截图佐证。本项目代码采用 MIT 协议，数据与文档采用 CC BY-NC-SA 4.0 共享。</p>
+      <div class="flex items-center justify-center gap-4 pt-2">
+        <a href="https://github.com/fairyeye/fucking-ad" target="_blank" class="hover:text-rose-400 transition-colors">GitHub 仓库</a>
+        <span>·</span>
+        <a href="https://github.com/fairyeye/fucking-ad/blob/main/CONTRIBUTING.md" target="_blank" class="hover:text-rose-400 transition-colors">参与贡献</a>
+        <span>·</span>
+        <a href="https://github.com/fairyeye/fucking-ad/issues/new?template=report_ad.yml" target="_blank" class="hover:text-rose-400 transition-colors">举报弹窗广告</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Embedded Data Script -->
+  <script>
+    window.__INITIAL_DATA__ = {"stats": {"total_records": 4, "total_advertisers": 4, "total_hosts": 4, "top_offenses": [{"name": "假关闭按钮/像素级诱导", "count": 2}, {"name": "开屏广告/全屏遮罩", "count": 2}, {"name": "伪装系统通知/红包/短信", "count": 1}, {"name": "扭一扭/倾斜跳转", "count": 1}, {"name": "摇一摇跳转", "count": 1}, {"name": "无法关闭/强制倒计时", "count": 1}], "categories": [{"name": "二手车/房产", "count": 1}, {"name": "电商购物", "count": 1}, {"name": "社交娱乐", "count": 1}, {"name": "金融借贷", "count": 1}]}, "records": [{"id": "20260915-guazi-tilt", "date": "2026-09-15", "advertiser": {"name": "瓜子二手车", "alias": ["Guazi", "车好多"], "parent_company": "车好多旧机动车经纪（北京）有限公司", "category": "二手车/房产", "boycott_level": 4}, "host_app": {"name": "优酷视频", "platform": "iOS", "version": "11.0.8"}, "offense_type": ["扭一扭/倾斜跳转", "开屏广告/全屏遮罩"], "description": "在地铁上打开优酷准备看缓存视频，列车轻微启动晃动导致手机倾斜度大于5度，立即被开屏广告判定为“扭动手机”，粗暴唤醒并直接跳转到瓜子二手车选车专区，返回后仍有全屏弹窗挽留。", "evidence": {"images": ["screenshots/2026/guazi_tilt_01.png"], "video_url": ""}, "host_alternatives": ["Infuse / VLC / IINA (本地播放器)", "无广告纯净流媒体"], "advertiser_alternatives": ["品牌官方认证二手车 / 线下正规4S店官方认证"], "tags": ["扭一扭", "陀螺仪滥用", "开屏强行跳转"], "_file": "20260915-guazi-tilt.yaml"}, {"id": "20260910-kuaishou-fake-close", "date": "2026-09-10", "advertiser": {"name": "快手极速版", "alias": ["Kuaishou Lite"], "parent_company": "北京快手科技有限公司", "category": "社交娱乐", "boycott_level": 4}, "host_app": {"name": "墨迹天气", "platform": "Android", "version": "9.0.2"}, "offense_type": ["假关闭按钮/像素级诱导", "无法关闭/强制倒计时"], "description": "打开查看今天是否有雨时，直接弹出占据整个屏幕的“转盘抽金币领现金”弹窗，音效自动最大声播放。右上角的叉号实际上是假图层，点击叉号直接打开应用商店安装页面。等待倒计时5秒后才出现真实的小叉号。", "evidence": {"images": ["screenshots/2026/kuaishou_fake_close_01.png"], "video_url": ""}, "host_alternatives": ["几何天气 (开源无广告天气)", "系统自带天气", "和风天气精简版"], "advertiser_alternatives": ["Bilibili (相对克制社区) / 优质播客客户端 (小宇宙)"], "tags": ["假关闭按钮", "声音扰民", "极速版收割"], "_file": "20260910-kuaishou-fake-close.yaml"}, {"id": "20260905-360jie-fake-notice", "date": "2026-09-05", "advertiser": {"name": "360借条", "alias": ["360数科", "奇富科技"], "parent_company": "奇富科技股份有限公司 (原360数科)", "category": "金融借贷", "boycott_level": 5}, "host_app": {"name": "万年历", "platform": "Android", "version": "6.2.8"}, "offense_type": ["伪装系统通知/红包/短信", "假关闭按钮/像素级诱导"], "description": "在查看日历农历信息时，突然弹出仿冒微信未读红包与系统到账通知的红色横幅，大字标明“200,000元备用金额度即将过期”。右上角的叉号用极浅的灰色伪装，点击后直接触发全屏热区并强制调起下载安装。", "evidence": {"images": ["screenshots/2026/360_fake_notice_01.png"], "video_url": ""}, "host_alternatives": ["手机系统自带日历 (无广告)", "Simple Calendar (开源无广告)"], "advertiser_alternatives": ["各大正规商业银行官方信贷渠道 (远离任何弹窗高利网贷)"], "tags": ["网贷推销", "视觉欺诈", "诱导长辈"], "_file": "20260905-360jie-fake-notice.yaml"}, {"id": "20260901-pinduoduo-shake", "date": "2026-09-01", "advertiser": {"name": "拼多多", "alias": ["Pinduoduo", "PDD"], "parent_company": "上海寻梦信息技术有限公司", "category": "电商购物", "boycott_level": 5}, "host_app": {"name": "酷狗音乐", "platform": "iOS", "version": "12.0.1"}, "offense_type": ["摇一摇跳转", "开屏广告/全屏遮罩"], "description": "打开音乐APP准备戴耳机听歌，走路时手腕轻微晃动，瞬间强行唤醒并跳转到拼多多APP的“百亿补贴大转盘”会场。跳过按钮仅有米粒大小且右上角热区延迟3秒才生效，严重打断正常使用。", "evidence": {"images": ["screenshots/2026/pinduoduo_shake_01.png"], "video_url": ""}, "host_alternatives": ["椒盐音乐 (开源无广告本地播放器)", "Apple Music", "Foobar2000"], "advertiser_alternatives": ["品牌官方商城 / 京东自营 / 线下专柜直购"], "tags": ["摇一摇", "开屏流氓跳转", "电商大促"], "_file": "20260901-pinduoduo-shake.yaml"}], "advertisers": [{"name": "360借条", "alias": ["360数科", "奇富科技"], "parent_company": "奇富科技股份有限公司 (原360数科)", "category": "金融借贷", "boycott_level": 5, "boycott_stars": "⭐⭐⭐⭐⭐", "count": 1, "hosts": ["万年历"], "offenses": [{"name": "伪装系统通知/红包/短信", "count": 1}, {"name": "假关闭按钮/像素级诱导", "count": 1}], "alternatives": ["各大正规商业银行官方信贷渠道 (远离任何弹窗高利网贷)"], "record_ids": ["20260905-360jie-fake-notice"]}, {"name": "拼多多", "alias": ["Pinduoduo", "PDD"], "parent_company": "上海寻梦信息技术有限公司", "category": "电商购物", "boycott_level": 5, "boycott_stars": "⭐⭐⭐⭐⭐", "count": 1, "hosts": ["酷狗音乐"], "offenses": [{"name": "摇一摇跳转", "count": 1}, {"name": "开屏广告/全屏遮罩", "count": 1}], "alternatives": ["品牌官方商城 / 京东自营 / 线下专柜直购"], "record_ids": ["20260901-pinduoduo-shake"]}, {"name": "快手极速版", "alias": ["Kuaishou Lite"], "parent_company": "北京快手科技有限公司", "category": "社交娱乐", "boycott_level": 4, "boycott_stars": "⭐⭐⭐⭐☆", "count": 1, "hosts": ["墨迹天气"], "offenses": [{"name": "假关闭按钮/像素级诱导", "count": 1}, {"name": "无法关闭/强制倒计时", "count": 1}], "alternatives": ["Bilibili (相对克制社区) / 优质播客客户端 (小宇宙)"], "record_ids": ["20260910-kuaishou-fake-close"]}, {"name": "瓜子二手车", "alias": ["Guazi", "车好多"], "parent_company": "车好多旧机动车经纪（北京）有限公司", "category": "二手车/房产", "boycott_level": 4, "boycott_stars": "⭐⭐⭐⭐☆", "count": 1, "hosts": ["优酷视频"], "offenses": [{"name": "扭一扭/倾斜跳转", "count": 1}, {"name": "开屏广告/全屏遮罩", "count": 1}], "alternatives": ["品牌官方认证二手车 / 线下正规4S店官方认证"], "record_ids": ["20260915-guazi-tilt"]}], "hosts": [{"name": "万年历", "platforms": ["Android"], "count": 1, "advertisers": ["360借条"], "offenses": [{"name": "伪装系统通知/红包/短信", "count": 1}, {"name": "假关闭按钮/像素级诱导", "count": 1}], "alternatives": ["Simple Calendar (开源无广告)", "手机系统自带日历 (无广告)"], "record_ids": ["20260905-360jie-fake-notice"]}, {"name": "优酷视频", "platforms": ["iOS"], "count": 1, "advertisers": ["瓜子二手车"], "offenses": [{"name": "扭一扭/倾斜跳转", "count": 1}, {"name": "开屏广告/全屏遮罩", "count": 1}], "alternatives": ["Infuse / VLC / IINA (本地播放器)", "无广告纯净流媒体"], "record_ids": ["20260915-guazi-tilt"]}, {"name": "墨迹天气", "platforms": ["Android"], "count": 1, "advertisers": ["快手极速版"], "offenses": [{"name": "假关闭按钮/像素级诱导", "count": 1}, {"name": "无法关闭/强制倒计时", "count": 1}], "alternatives": ["几何天气 (开源无广告天气)", "和风天气精简版", "系统自带天气"], "record_ids": ["20260910-kuaishou-fake-close"]}, {"name": "酷狗音乐", "platforms": ["iOS"], "count": 1, "advertisers": ["拼多多"], "offenses": [{"name": "摇一摇跳转", "count": 1}, {"name": "开屏广告/全屏遮罩", "count": 1}], "alternatives": ["Apple Music", "Foobar2000", "椒盐音乐 (开源无广告本地播放器)"], "record_ids": ["20260901-pinduoduo-shake"]}]};
+  </script>
+
+  <!-- App Logic -->
+  <script>
+    (function () {
+      const data = window.__INITIAL_DATA__ || { records: [], advertisers: [], hosts: [], stats: {} };
+      
+      const STARS_MAP = {
+        1: "⭐☆☆☆☆ (轻度骚扰)",
+        2: "⭐⭐☆☆☆ (中度反感)",
+        3: "⭐⭐⭐☆☆ (严重流氓)",
+        4: "⭐⭐⭐⭐☆ (极度恶劣)",
+        5: "⭐⭐⭐⭐⭐ (终身拉黑)"
+      };
+
+      // State
+      let currentTab = 'records';
+      let searchQuery = '';
+      let activeFilter = { type: 'all', val: '' };
+
+      // DOM Elements
+      const searchInput = document.getElementById('search-input');
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const filterPills = document.querySelectorAll('.filter-pill');
+      const matchStatus = document.getElementById('match-status');
+      const modal = document.getElementById('image-modal');
+      const modalImg = document.getElementById('modal-img');
+      const modalCaption = document.getElementById('modal-caption');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const toastEl = document.getElementById('toast');
+
+      // Init stats
+      document.getElementById('stat-records').innerText = data.records.length;
+      document.getElementById('stat-advertisers').innerText = data.advertisers.length;
+      document.getElementById('stat-hosts').innerText = data.hosts.length;
+      document.getElementById('tab-count-records').innerText = data.records.length;
+      document.getElementById('tab-count-advertisers').innerText = data.advertisers.length;
+      document.getElementById('tab-count-hosts').innerText = data.hosts.length;
+
+      // Toast helper
+      function showToast(msg) {
+        toastEl.innerText = msg;
+        toastEl.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toastEl.classList.add('translate-y-20', 'opacity-0');
+        }, 2500);
+      }
+
+      // Filter logic
+      function getFilteredRecords() {
+        const q = searchQuery.trim().toLowerCase();
+        return data.records.filter(r => {
+          // Pill filter
+          if (activeFilter.type === 'offense' && !r.offense_type.includes(activeFilter.val)) {
+            return false;
+          }
+          if (activeFilter.type === 'category' && r.advertiser?.category !== activeFilter.val) {
+            return false;
+          }
+          if (activeFilter.type === 'level' && r.advertiser?.boycott_level !== parseInt(activeFilter.val)) {
+            return false;
+          }
+
+          // Search query
+          if (!q) return true;
+
+          const text = [
+            r.id,
+            r.advertiser?.name,
+            ...(r.advertiser?.alias || []),
+            r.advertiser?.parent_company,
+            r.advertiser?.category,
+            r.host_app?.name,
+            r.host_app?.platform,
+            ...(r.offense_type || []),
+            r.description,
+            ...(r.host_alternatives || []),
+            ...(r.advertiser_alternatives || []),
+            ...(r.tags || [])
+          ].filter(Boolean).join(' ').toLowerCase();
+
+          return text.includes(q);
+        });
+      }
+
+      // Render Records Grid
+      function renderRecords() {
+        const list = getFilteredRecords();
+        const container = document.getElementById('records-grid');
+        const empty = document.getElementById('records-empty');
+
+        matchStatus.innerText = `找到 ${list.length} / ${data.records.length} 条记录`;
+
+        if (list.length === 0) {
+          container.innerHTML = '';
+          empty.classList.remove('hidden');
+          return;
+        }
+        empty.classList.add('hidden');
+
+        container.innerHTML = list.map(r => {
+          const adv = r.advertiser || {};
+          const host = r.host_app || {};
+          const offenses = r.offense_type || [];
+          const images = r.evidence?.images || [];
+          const level = adv.boycott_level || 3;
+          const starStr = STARS_MAP[level] || '⭐⭐⭐☆☆';
+          const levelColor = level === 5 ? 'bg-rose-950/80 text-rose-300 border-rose-800' : 'bg-amber-950/80 text-amber-300 border-amber-800';
+
+          const thumb = images.length > 0 ? images[0] : '';
+          
+          return `
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-all flex flex-col justify-between shadow-lg group">
+              <div>
+                <!-- Card Header -->
+                <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-2 bg-slate-900/90">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-slate-400">${r.date}</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded border ${levelColor} font-medium">${starStr}</span>
+                  </div>
+                  <span class="text-[11px] font-mono text-slate-500 truncate max-w-[120px]">${r.id}</span>
+                </div>
+
+                <!-- Main Info -->
+                <div class="p-5">
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <h3 class="text-lg font-bold text-white group-hover:text-rose-400 transition-colors">
+                        ${adv.name}
+                        <span class="text-xs font-normal text-slate-400 ml-1.5 font-mono">(${adv.category})</span>
+                      </h3>
+                      <p class="text-xs text-slate-400 mt-0.5">
+                        母公司: <span class="text-slate-300">${adv.parent_company || '未知'}</span>
+                      </p>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <span class="text-xs px-2 py-0.5 rounded bg-sky-950/80 border border-sky-800 text-sky-300">
+                        📱 ${host.name} (${host.platform})
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Offense badges -->
+                  <div class="flex flex-wrap gap-1.5 my-3">
+                    ${offenses.map(o => `<span class="text-[11px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 font-medium">⚠️ ${o}</span>`).join('')}
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-xs sm:text-sm text-slate-300 line-clamp-3 leading-relaxed mt-2 bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80">
+                    ${r.description}
+                  </p>
+
+                  <!-- Screenshot Preview Thumbnail -->
+                  ${thumb ? `
+                    <div class="mt-3">
+                      <div class="relative group/thumb cursor-pointer overflow-hidden rounded-lg border border-slate-800 bg-slate-950 h-32 flex items-center justify-center" onclick="window.previewImage('${thumb}', '${adv.name} 在 ${host.name} 的作恶截图')">
+                        <img src="${thumb}" alt="证据截图" class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform opacity-80 group-hover/thumb:opacity-100" onerror="this.src=''; this.parentElement.innerHTML='<span class=\\'text-xs text-slate-500\\'>截图证据已存档</span>'">
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                          <span class="text-xs font-semibold text-white bg-slate-900/80 px-2.5 py-1 rounded-full border border-slate-700">🔍 点击查看大图证据</span>
+                        </div>
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Alternatives -->
+                  <div class="mt-4 space-y-1.5 pt-3 border-t border-slate-800 text-xs">
+                    ${(r.host_alternatives && r.host_alternatives.length > 0) ? `
+                      <div class="text-slate-400">
+                        <span class="text-sky-400 font-medium">📲 换掉该APP：</span>
+                        <span class="text-slate-200">${r.host_alternatives.join('、')}</span>
+                      </div>
+                    ` : ''}
+                    ${(r.advertiser_alternatives && r.advertiser_alternatives.length > 0) ? `
+                      <div class="text-slate-400">
+                        <span class="text-emerald-400 font-medium">🛒 良心消费替代：</span>
+                        <span class="text-slate-200">${r.advertiser_alternatives.join('、')}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="px-5 py-3 bg-slate-950/60 border-t border-slate-800 flex items-center justify-between text-xs">
+                <span class="text-slate-500 font-mono">#${adv.name}</span>
+                <button onclick="window.shareRecord('${r.id}', '${adv.name}')" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                  <span>🔗</span> 复制分享链接
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Advertisers Table
+      function renderAdvertisers() {
+        const tbody = document.getElementById('advertisers-tbody');
+        tbody.innerHTML = data.advertisers.map(adv => {
+          return `
+            <tr class="hover:bg-slate-800/50 transition-colors">
+              <td class="py-3.5 px-4 font-bold text-white whitespace-nowrap">
+                ${adv.name}
+                ${adv.alias && adv.alias.length ? `<span class="block text-xs font-normal text-slate-400">${adv.alias.join(', ')}</span>` : ''}
+              </td>
+              <td class="py-3.5 px-4 text-xs text-slate-300">${adv.parent_company || '未知'}</td>
+              <td class="py-3.5 px-4 text-xs whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${adv.category}</span></td>
+              <td class="py-3.5 px-4 text-center font-bold text-rose-400">${adv.count}</td>
+              <td class="py-3.5 px-4 text-xs font-medium whitespace-nowrap text-amber-300">${adv.boycott_stars}</td>
+              <td class="py-3.5 px-4 text-xs text-sky-300">${adv.hosts.join('、')}</td>
+              <td class="py-3.5 px-4 text-xs text-emerald-300">${adv.alternatives.length > 0 ? adv.alternatives.join('、') : '寻找正规自营渠道'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Hosts Table
+      function renderHosts() {
+        const tbody = document.getElementById('hosts-tbody');
+        tbody.innerHTML = data.hosts.map(h => {
+          const topOffenses = h.offenses.slice(0, 2).map(o => o.name).join('、');
+          return `
+            <tr class="hover:bg-slate-800/50 transition-colors">
+              <td class="py-3.5 px-4 font-bold text-white whitespace-nowrap">${h.name}</td>
+              <td class="py-3.5 px-4 text-xs text-slate-300">${h.platforms.join(' / ')}</td>
+              <td class="py-3.5 px-4 text-center font-bold text-rose-400">${h.count}</td>
+              <td class="py-3.5 px-4 text-xs text-rose-300">${topOffenses}</td>
+              <td class="py-3.5 px-4 text-xs text-amber-300">${h.advertisers.join('、')}</td>
+              <td class="py-3.5 px-4 text-xs text-emerald-300">${h.alternatives.length > 0 ? h.alternatives.join('、') : '寻找纯净开源替代'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Alternatives View
+      function renderAlternatives() {
+        const hostList = document.getElementById('host-alternatives-list');
+        const advList = document.getElementById('advertiser-alternatives-list');
+
+        hostList.innerHTML = data.hosts.map(h => {
+          if (!h.alternatives || h.alternatives.length === 0) return '';
+          return `
+            <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+              <div class="text-xs font-semibold text-rose-400 mb-1">🛑 替换【${h.name}】(${h.platforms.join('/')})：</div>
+              <div class="text-xs text-slate-200 flex flex-wrap gap-2">
+                ${h.alternatives.map(a => `<span class="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800 text-emerald-300">✅ ${a}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        advList.innerHTML = data.advertisers.map(adv => {
+          if (!adv.alternatives || adv.alternatives.length === 0) return '';
+          return `
+            <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800">
+              <div class="text-xs font-semibold text-amber-400 mb-1">🛑 抵制【${adv.name}】(${adv.category}) 转向：</div>
+              <div class="text-xs text-slate-200 flex flex-wrap gap-2">
+                ${adv.alternatives.map(a => `<span class="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800 text-emerald-300">✅ ${a}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Tab switching
+      function switchTab(tabId) {
+        currentTab = tabId;
+        tabBtns.forEach(btn => {
+          if (btn.dataset.tab === tabId) {
+            btn.className = 'tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all bg-rose-600 text-white';
+          } else {
+            btn.className = 'tab-btn px-3 py-1.5 rounded-md font-medium text-xs sm:text-sm transition-all text-slate-400 hover:text-white';
+          }
+        });
+
+        document.querySelectorAll('.tab-view').forEach(view => {
+          if (view.id === `view-${tabId}`) {
+            view.classList.remove('hidden');
+          } else {
+            view.classList.add('hidden');
+          }
+        });
+      }
+
+      // Event Listeners
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        clearSearchBtn.classList.toggle('hidden', !searchQuery);
+        renderRecords();
+        if (currentTab !== 'records') {
+          switchTab('records');
+        }
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        clearSearchBtn.classList.add('hidden');
+        renderRecords();
+      });
+
+      // Quick filter pills
+      filterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          filterPills.forEach(p => {
+            p.className = 'filter-pill px-2.5 py-1 rounded-full border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700';
+          });
+          pill.className = 'filter-pill px-2.5 py-1 rounded-full border border-rose-500 bg-rose-500/20 text-rose-300 active';
+
+          activeFilter = {
+            type: pill.dataset.filterType,
+            val: pill.dataset.filterVal
+          };
+          renderRecords();
+          if (currentTab !== 'records') {
+            switchTab('records');
+          }
+        });
+      });
+
+      // Global preview and share functions
+      window.previewImage = function (src, caption) {
+        modalImg.src = src;
+        modalCaption.innerText = caption;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      };
+
+      window.shareRecord = function (id, brandName) {
+        const url = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(brandName)}`;
+        navigator.clipboard.writeText(url).then(() => {
+          showToast(`已复制「${brandName}」恶行避雷分享链接！`);
+        }).catch(() => {
+          showToast(`复制失败，请手动分享: ${url}`);
+        });
+      };
+
+      closeModalBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+        if (e.key === '/' && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+
+      // Parse URL parameters (e.g. ?q=拼多多 or ?tab=advertisers)
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialQ = urlParams.get('q');
+      const initialTab = urlParams.get('tab');
+      if (initialQ) {
+        searchInput.value = initialQ;
+        searchQuery = initialQ;
+        clearSearchBtn.classList.remove('hidden');
+      }
+      if (initialTab && ['records', 'advertisers', 'hosts', 'alternatives'].includes(initialTab)) {
+        switchTab(initialTab);
+      }
+
+      // Initial Render
+      renderRecords();
+      renderAdvertisers();
+      renderHosts();
+      renderAlternatives();
+    })();
+  </script>
+</body>
+</html>

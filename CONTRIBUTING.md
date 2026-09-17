@@ -77,16 +77,18 @@ evidence:
   images:
     - "screenshots/2026/pinduoduo_shake_01.png" # 本地截图相对路径，或可访问的公开图床URL
   video_url: ""                        # 录屏视频地址（选填）
-suggested_alternatives:                # 💡 良心替代品推荐（鼓励支持干净的好产品）
+host_alternatives:                    # 📲 推荐替换该宿主APP的干净产品
   - "椒盐音乐 (开源本地播放器)"
   - "Apple Music"
+advertiser_alternatives:                # 🛒 替代该广告主的良心消费途径
+  - "品牌官网直购 / 京东自营"
 tags:
   - "摇一摇"
   - "流氓开屏"
 ```
 
 ### 4. 本地验证与构建
-在提交代码前，请务必执行以下命令进行本地校验并重新生成 `README.md`：
+在提交代码前，请务必执行以下命令进行本地校验并重新生成 `README.md` 与静态检索站：
 
 ```bash
 # 1. 校验数据格式与图片有效性
@@ -95,8 +97,8 @@ python3 scripts/lint_data.py
 # 2. 重新编译 README.md
 python3 scripts/build_readme.py
 
-# 3. 检查是否有未同步的内容
-python3 scripts/build_readme.py --check
+# 3. 重新生成检索站 (docs/)
+python3 scripts/build_site.py
 ```
 
 ### 5. 提交 PR

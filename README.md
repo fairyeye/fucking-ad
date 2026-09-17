@@ -1,9 +1,11 @@
 # 🛑 fucking-ad (流氓弹窗广告恶行录)
 
-> **「每一次你被弹窗恶心后记住的品牌，都是流氓营销的得逞。」**  
-> **「互联网没有记忆，但 Git 有。既然你敢弹窗骚扰，我就永远拉黑你家产品。」**
+> 🌐 **在线避雷检索站（移动端友好 · 毫秒级搜索）**：**[https://fairyeye.github.io/fucking-ad/](https://fairyeye.github.io/fucking-ad/)**  
+> 💬 **「每一次你被弹窗恶心后记住的品牌，都是流氓营销的得逞。」**  
+> ⚡ **「互联网没有记忆，但 Git 有。既然你敢弹窗骚扰，我就永远拉黑你家产品。」**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Online Portal](https://img.shields.io/badge/Online%20Web-在线检索站-rose.svg)](https://fairyeye.github.io/fucking-ad/)
 ![Total Records](https://img.shields.io/badge/收录恶行-4条-red.svg)
 ![Boycotted Brands](https://img.shields.io/badge/抵制品牌-4个-orange.svg)
 ![Host Apps](https://img.shields.io/badge/宿主APP-4款-critical.svg)
