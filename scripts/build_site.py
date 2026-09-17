@@ -58,6 +58,7 @@ def compile_data(records):
         "category": "",
         "boycott_level": 1,
         "count": 0,
+        "outrage_count": 0,
         "hosts": set(),
         "offenses": Counter(),
         "alternatives": set(),
@@ -68,6 +69,7 @@ def compile_data(records):
         "name": "",
         "platforms": set(),
         "count": 0,
+        "outrage_count": 0,
         "advertisers": set(),
         "offenses": Counter(),
         "alternatives": set(),
@@ -85,6 +87,8 @@ def compile_data(records):
         parent = adv.get("parent_company", "")
         level = adv.get("boycott_level", 3)
         alias = adv.get("alias", [])
+        outrage = r.get("outrage_count", 0)
+        r["outrage_count"] = outrage
         
         host = r.get("host_app", {})
         host_name = host.get("name", "未知APP")
@@ -109,6 +113,7 @@ def compile_data(records):
             ad_entry["category"] = category
         ad_entry["boycott_level"] = max(ad_entry["boycott_level"], level)
         ad_entry["count"] += 1
+        ad_entry["outrage_count"] += outrage
         ad_entry["hosts"].add(host_name)
         ad_entry["record_ids"].append(rid)
         for alt in r.get("advertiser_alternatives", []):
@@ -120,15 +125,16 @@ def compile_data(records):
         host_entry["name"] = host_name
         host_entry["platforms"].add(platform)
         host_entry["count"] += 1
+        host_entry["outrage_count"] += outrage
         host_entry["advertisers"].add(adv_name)
         host_entry["record_ids"].append(rid)
         for alt in r.get("host_alternatives", []):
             if alt.strip():
                 host_entry["alternatives"].add(alt.strip())
 
-    # Format advertisers list
+    # Format advertisers list (rank by outrage_count desc, count desc, boycott_level desc)
     advertisers_list = []
-    for adv_name, info in sorted(advertisers_map.items(), key=lambda x: (-x[1]["count"], -x[1]["boycott_level"], x[0])):
+    for adv_name, info in sorted(advertisers_map.items(), key=lambda x: (-x[1]["outrage_count"], -x[1]["count"], -x[1]["boycott_level"], x[0])):
         advertisers_list.append({
             "name": adv_name,
             "alias": info["alias"],
@@ -137,6 +143,7 @@ def compile_data(records):
             "boycott_level": info["boycott_level"],
             "boycott_stars": STARS.get(info["boycott_level"], "⭐⭐⭐☆☆"),
             "count": info["count"],
+            "outrage_count": info["outrage_count"],
             "hosts": sorted(list(info["hosts"])),
             "offenses": sorted([{"name": k, "count": v} for k, v in info["offenses"].items()], key=lambda x: -x["count"]),
             "alternatives": sorted(list(info["alternatives"])),

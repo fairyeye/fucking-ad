@@ -70,6 +70,25 @@
       box-shadow: 0 0 12px -2px rgba(244, 63, 94, 0.4);
     }
 
+    @keyframes floatRage {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -24px) scale(1.35); }
+      100% { opacity: 0; transform: translate(-50%, -46px) scale(0.85); }
+    }
+    .rage-particle {
+      position: absolute;
+      left: 50%;
+      top: -4px;
+      pointer-events: none;
+      animation: floatRage 0.75s ease-out forwards;
+      font-weight: 900;
+      font-size: 13px;
+      color: #ff2a55;
+      text-shadow: 0 0 10px rgba(255, 42, 85, 0.8);
+      white-space: nowrap;
+      z-index: 50;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -217,8 +236,24 @@
         </button>
       </div>
 
-      <div class="text-xs text-slate-400 shrink-0 font-mono" id="match-status">
-        加载中...
+      <!-- Sort Toolbar & Match Status -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div id="sort-container" class="flex items-center gap-1 bg-dark-900/90 p-1 rounded-xl border border-white/5 text-xs">
+          <span class="text-slate-500 pl-2 pr-1 font-medium hidden md:inline">排序:</span>
+          <button data-sort="outrage" class="sort-btn px-2.5 py-1.5 rounded-lg font-bold transition-all bg-rose-500/20 text-rose-300 border border-rose-500/30 active">
+            🔥 怒斥最多
+          </button>
+          <button data-sort="date" class="sort-btn px-2.5 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white">
+            🕒 最新立案
+          </button>
+          <button data-sort="level" class="sort-btn px-2.5 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white">
+            ☠️ 抵制指数
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-400 shrink-0 font-mono hidden sm:block" id="match-status">
+          加载中...
+        </div>
       </div>
     </div>
   </div>
@@ -448,14 +483,24 @@
 
       // App state
       let currentTab = 'records';
+      let currentSort = 'outrage'; // 'outrage' | 'date' | 'level'
       let searchQuery = '';
       let activeFilter = { type: 'all', val: '' };
+
+      // Local interactive reactions persistence
+      const userOutrages = JSON.parse(localStorage.getItem('fucking_ad_user_outrages') || '{}');
+      const outragedSet = new Set(JSON.parse(localStorage.getItem('fucking_ad_outraged_ids') || '[]'));
+
+      function getRecordOutrage(r) {
+        return (r.outrage_count || 0) + (userOutrages[r.id] || 0);
+      }
 
       // Elements
       const searchInput = document.getElementById('search-input');
       const clearSearchBtn = document.getElementById('clear-search-btn');
       const tabBtns = document.querySelectorAll('.tab-btn');
       const filterPills = document.querySelectorAll('.filter-pill');
+      const sortBtns = document.querySelectorAll('.sort-btn');
       const matchStatus = document.getElementById('match-status');
       const modal = document.getElementById('image-modal');
       const modalImg = document.getElementById('modal-img');
@@ -483,7 +528,7 @@
 
       function getFilteredRecords() {
         const q = searchQuery.trim().toLowerCase();
-        return data.records.filter(r => {
+        let list = data.records.filter(r => {
           if (activeFilter.type === 'offense' && !r.offense_type.includes(activeFilter.val)) return false;
           if (activeFilter.type === 'category' && r.advertiser?.category !== activeFilter.val) return false;
           if (activeFilter.type === 'level' && r.advertiser?.boycott_level !== parseInt(activeFilter.val)) return false;
@@ -507,6 +552,25 @@
 
           return haystack.includes(q);
         });
+
+        // Sort records
+        if (currentSort === 'outrage') {
+          list.sort((a, b) => {
+            const diff = getRecordOutrage(b) - getRecordOutrage(a);
+            if (diff !== 0) return diff;
+            return String(b.date).localeCompare(String(a.date));
+          });
+        } else if (currentSort === 'date') {
+          list.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+        } else if (currentSort === 'level') {
+          list.sort((a, b) => {
+            const diff = (b.advertiser?.boycott_level || 0) - (a.advertiser?.boycott_level || 0);
+            if (diff !== 0) return diff;
+            return getRecordOutrage(b) - getRecordOutrage(a);
+          });
+        }
+
+        return list;
       }
 
       // Render Records
@@ -532,6 +596,9 @@
           const level = adv.boycott_level || 5;
           const levelMeta = STARS_LEVEL[level] || STARS_LEVEL[5];
           const thumb = images.length > 0 ? images[0] : '';
+
+          const outrageCount = getRecordOutrage(r);
+          const userHasOutraged = outragedSet.has(r.id);
 
           return `
             <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between group">
@@ -616,11 +683,18 @@
               </div>
 
               <!-- Footer -->
-              <div class="px-5 py-3 bg-dark-950/40 border-t border-white/5 flex items-center justify-between text-xs">
-                <span class="text-slate-500 font-mono">#${adv.name}</span>
-                <button onclick="window.shareRecord('${r.id}', '${adv.name}')" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium">
-                  <span>🔗</span> 分享此恶行
+              <div class="px-5 py-3.5 bg-dark-900/60 border-t border-white/5 flex items-center justify-between gap-2 text-xs">
+                <button onclick="window.handleOutrage('${r.id}', '${adv.name}', this)" class="outrage-btn relative group/btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all ${userHasOutraged ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-dark-850 hover:bg-rose-600/20 text-slate-300 hover:text-rose-300 border-white/10 hover:border-rose-500/30'}">
+                  <span class="text-sm transform group-hover/btn:scale-125 transition-transform">😡</span>
+                  <span class="font-bold text-xs">${userHasOutraged ? '已怒斥' : '怒斥恶行'}</span>
+                  <span class="outrage-count font-mono font-bold text-xs bg-dark-950/80 px-2 py-0.5 rounded-md border border-white/5 text-rose-400">${outrageCount}</span>
                 </button>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-500 font-mono hidden sm:inline">#${adv.name}</span>
+                  <button onclick="window.shareRecord('${r.id}', '${adv.name}')" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium px-2 py-1 rounded-lg hover:bg-dark-800">
+                    <span>🔗</span> <span>分享</span>
+                  </button>
+                </div>
               </div>
             </div>
           `;
@@ -658,9 +732,15 @@
               </div>
 
               <div class="md:text-right flex md:flex-col items-center md:items-end justify-between gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
-                <div>
-                  <span class="text-xs text-slate-500">累计作恶</span>
-                  <span class="text-xl font-black text-rose-500 ml-1 font-mono">${adv.count} 次</span>
+                <div class="flex items-center gap-3">
+                  <div>
+                    <span class="text-xs text-slate-500">曝光频次</span>
+                    <span class="text-sm font-bold text-slate-300 ml-1 font-mono">${adv.count} 次</span>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500">🔥 怒斥热度</span>
+                    <span class="text-xl font-black text-rose-500 ml-1 font-mono">${adv.outrage_count}</span>
+                  </div>
                 </div>
                 <div class="text-xs text-emerald-400">
                   良心消费替代: <span class="text-slate-300 font-medium">${adv.alternatives.length > 0 ? adv.alternatives.join('、') : '寻找官方正规自营'}</span>
@@ -799,6 +879,55 @@
           if (currentTab !== 'records') switchTab('records');
         });
       });
+
+      // Sort button switching
+      sortBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sortBtns.forEach(b => {
+            b.className = 'sort-btn px-2.5 py-1.5 rounded-lg font-medium transition-all text-slate-400 hover:text-white';
+          });
+          btn.className = 'sort-btn px-2.5 py-1.5 rounded-lg font-bold transition-all bg-rose-500/20 text-rose-300 border border-rose-500/30 active';
+          currentSort = btn.dataset.sort;
+          renderRecords();
+        });
+      });
+
+      // Interactive Outrage Reaction (+1)
+      window.handleOutrage = function (id, brandName, btnEl) {
+        userOutrages[id] = (userOutrages[id] || 0) + 1;
+        outragedSet.add(id);
+        localStorage.setItem('fucking_ad_user_outrages', JSON.stringify(userOutrages));
+        localStorage.setItem('fucking_ad_outraged_ids', JSON.stringify(Array.from(outragedSet)));
+
+        // Spawn floating particle
+        const particle = document.createElement('span');
+        particle.className = 'rage-particle';
+        particle.innerText = '+1 💥';
+        btnEl.appendChild(particle);
+        setTimeout(() => particle.remove(), 750);
+
+        if (navigator.vibrate) {
+          try { navigator.vibrate(50); } catch (e) {}
+        }
+
+        // Update UI
+        const countEl = btnEl.querySelector('.outrage-count');
+        if (countEl) {
+          const currentVal = parseInt(countEl.innerText) || 0;
+          countEl.innerText = currentVal + 1;
+        }
+        btnEl.classList.remove('bg-dark-850', 'text-slate-300', 'border-white/10');
+        btnEl.classList.add('bg-rose-500/20', 'text-rose-300', 'border-rose-500/40');
+
+        showToast(`已成功怒斥！为「${brandName}」恶行 +1，推它上恶名榜首！`);
+
+        // If sorted by outrage, re-sort after particle finishes
+        if (currentSort === 'outrage') {
+          setTimeout(() => {
+            renderRecords();
+          }, 600);
+        }
+      };
 
       // Quick Report Modal Functions
       window.openReportModal = function () {

@@ -71,6 +71,7 @@
         "扭一扭/倾斜跳转",
         "开屏广告/全屏遮罩"
       ],
+      "outrage_count": 1876,
       "description": "在地铁上打开优酷准备看缓存视频，列车轻微启动晃动导致手机倾斜度大于5度，立即被开屏广告判定为“扭动手机”，粗暴唤醒并直接跳转到瓜子二手车选车专区，返回后仍有全屏弹窗挽留。",
       "evidence": {
         "images": [
@@ -113,6 +114,7 @@
         "假关闭按钮/像素级诱导",
         "无法关闭/强制倒计时"
       ],
+      "outrage_count": 2410,
       "description": "打开查看今天是否有雨时，直接弹出占据整个屏幕的“转盘抽金币领现金”弹窗，音效自动最大声播放。右上角的叉号实际上是假图层，点击叉号直接打开应用商店安装页面。等待倒计时5秒后才出现真实的小叉号。",
       "evidence": {
         "images": [
@@ -157,6 +159,7 @@
         "伪装系统通知/红包/短信",
         "假关闭按钮/像素级诱导"
       ],
+      "outrage_count": 3892,
       "description": "在查看日历农历信息时，突然弹出仿冒微信未读红包与系统到账通知的红色横幅，大字标明“200,000元备用金额度即将过期”。右上角的叉号用极浅的灰色伪装，点击后直接触发全屏热区并强制调起下载安装。",
       "evidence": {
         "images": [
@@ -200,6 +203,7 @@
         "摇一摇跳转",
         "开屏广告/全屏遮罩"
       ],
+      "outrage_count": 5241,
       "description": "打开音乐APP准备戴耳机听歌，走路时手腕轻微晃动，瞬间强行唤醒并跳转到拼多多APP的“百亿补贴大转盘”会场。跳过按钮仅有米粒大小且右上角热区延迟3秒才生效，严重打断正常使用。",
       "evidence": {
         "images": [
@@ -225,37 +229,6 @@
   ],
   "advertisers": [
     {
-      "name": "360借条",
-      "alias": [
-        "360数科",
-        "奇富科技"
-      ],
-      "parent_company": "奇富科技股份有限公司 (原360数科)",
-      "category": "金融借贷",
-      "boycott_level": 5,
-      "boycott_stars": "⭐⭐⭐⭐⭐",
-      "count": 1,
-      "hosts": [
-        "万年历"
-      ],
-      "offenses": [
-        {
-          "name": "伪装系统通知/红包/短信",
-          "count": 1
-        },
-        {
-          "name": "假关闭按钮/像素级诱导",
-          "count": 1
-        }
-      ],
-      "alternatives": [
-        "各大正规商业银行官方信贷渠道 (远离任何弹窗高利网贷)"
-      ],
-      "record_ids": [
-        "20260905-360jie-fake-notice"
-      ]
-    },
-    {
       "name": "拼多多",
       "alias": [
         "Pinduoduo",
@@ -266,6 +239,7 @@
       "boycott_level": 5,
       "boycott_stars": "⭐⭐⭐⭐⭐",
       "count": 1,
+      "outrage_count": 5241,
       "hosts": [
         "酷狗音乐"
       ],
@@ -287,6 +261,38 @@
       ]
     },
     {
+      "name": "360借条",
+      "alias": [
+        "360数科",
+        "奇富科技"
+      ],
+      "parent_company": "奇富科技股份有限公司 (原360数科)",
+      "category": "金融借贷",
+      "boycott_level": 5,
+      "boycott_stars": "⭐⭐⭐⭐⭐",
+      "count": 1,
+      "outrage_count": 3892,
+      "hosts": [
+        "万年历"
+      ],
+      "offenses": [
+        {
+          "name": "伪装系统通知/红包/短信",
+          "count": 1
+        },
+        {
+          "name": "假关闭按钮/像素级诱导",
+          "count": 1
+        }
+      ],
+      "alternatives": [
+        "各大正规商业银行官方信贷渠道 (远离任何弹窗高利网贷)"
+      ],
+      "record_ids": [
+        "20260905-360jie-fake-notice"
+      ]
+    },
+    {
       "name": "快手极速版",
       "alias": [
         "Kuaishou Lite"
@@ -296,6 +302,7 @@
       "boycott_level": 4,
       "boycott_stars": "⭐⭐⭐⭐☆",
       "count": 1,
+      "outrage_count": 2410,
       "hosts": [
         "墨迹天气"
       ],
@@ -327,6 +334,7 @@
       "boycott_level": 4,
       "boycott_stars": "⭐⭐⭐⭐☆",
       "count": 1,
+      "outrage_count": 1876,
       "hosts": [
         "优酷视频"
       ],

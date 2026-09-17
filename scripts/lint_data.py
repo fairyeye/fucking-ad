@@ -134,6 +134,12 @@ def validate_record(file_path: Path) -> list[str]:
         if alt_field in data and not isinstance(data[alt_field], list):
             errors.append(f"字段 '{alt_field}' 若存在必须为列表")
 
+    # Optional outrage_count (怒斥计数)
+    if "outrage_count" in data:
+        cnt = data["outrage_count"]
+        if not isinstance(cnt, int) or cnt < 0:
+            errors.append(f"字段 'outrage_count' 必须为非负整数，当前为: {cnt}")
+
     # 8. Check Evidence
     evidence = data.get("evidence", {})
     if isinstance(evidence, dict):
