@@ -65,8 +65,8 @@ def validate_record(file_path: Path) -> list[str]:
     if not record_id or not isinstance(record_id, str):
         errors.append("缺少必须的字符串字段: 'id'")
     else:
-        if not re.match(r"^[a-zA-Z0-9_-]+$", record_id):
-            errors.append(f"字段 'id' ({record_id}) 仅支持字母、数字、下划线和连字符")
+        if not re.match(r"^[\w-]+$", record_id):
+            errors.append(f"字段 'id' ({record_id}) 仅支持字母、汉字、数字、下划线和连字符")
         if file_path.stem != record_id:
             errors.append(f"文件名 ({file_path.name}) 与 record id ({record_id}.yaml) 不匹配")
 
