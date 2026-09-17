@@ -7,9 +7,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Online Portal](https://img.shields.io/badge/Online%20Web-在线检索站-cyan.svg)](https://fairyeye.github.io/fucking-ad/)
-![Total Records](https://img.shields.io/badge/收录案例-0起-slate.svg)
-![Advertiser Brands](https://img.shields.io/badge/涉事品牌-0家-slate.svg)
-![Host Apps](https://img.shields.io/badge/载体应用-0款-slate.svg)
+![Total Records](https://img.shields.io/badge/收录案例-1起-slate.svg)
+![Advertiser Brands](https://img.shields.io/badge/涉事品牌-1家-slate.svg)
+![Host Apps](https://img.shields.io/badge/载体应用-1款-slate.svg)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ---
@@ -35,11 +35,17 @@
 
 ## 📊 案例总览与统计
 
-- 📝 **已收录案例样本**：`0` 起
-- 🏢 **涉及广告主品牌**：`0` 家
-- 📱 **载体宿主应用数**：`0` 款
+- 📝 **已收录案例样本**：`1` 起
+- 🏢 **涉及广告主品牌**：`1` 家
+- 📱 **载体宿主应用数**：`1` 款
 
-> 💡 **名录初始化就绪**：当前暂无收录案例。天下手机用户苦不良弹窗久矣，欢迎[通过 Issue 提交案例](../../issues/new?template=report_ad.yml)成为第一个贡献者！
+### 🔥 典型诱导与打扰手段分布
+
+| 手段类型 | 出现频次 | 占比 | 典型表现 |
+| :--- | :---: | :---: | :--- |
+| **假关闭按钮/像素级诱导** | `1` | 100.0% | 滥用传感器、微小假关闭按钮、视觉欺诈 |
+| **开屏广告/全屏遮罩** | `1` | 100.0% | 滥用传感器、微小假关闭按钮、视觉欺诈 |
+| **无法关闭/强制倒计时** | `1` | 100.0% | 滥用传感器、微小假关闭按钮、视觉欺诈 |
 
 ---
 
@@ -47,19 +53,35 @@
 
 > 提示：消费即投票。日常消费与服务选购时，可参考以下频繁使用诱导式弹窗投放的品牌名录。
 
-> *当前暂无涉事品牌记录，等待社区提报。*
+| 品牌名称 | 所属主体企业 | 涉及品类 | 留存案例数 | 常见载体宿主 |
+| :--- | :--- | :--- | :---: | :--- |
+| **抖音商城** | 北京字节跳动科技有限公司 | 电商购物 | `1` | 酷安 |
 
 ---
 
 ## 📱 载体宿主应用观察榜 (高频弹窗发生地)
 
-> *当前暂无宿主应用记录，等待社区提报。*
+| 宿主 APP | 平台 | 留存案例数 | 典型手段 | 常见推广品牌 | 推荐替代方案 |
+| :--- | :---: | :---: | :--- | :--- | :--- |
+| **酷安** | Android | `1` | 假关闭按钮/像素级诱导、开屏广告/全屏遮罩 | 抖音商城 | 寻找纯净替代 |
 
 ---
 
 ## 📋 最新案例档案库
 
-> *当前暂无案例归档。*
+<details>
+<summary><b>👉 点击展开查看所有留存的历史案例细节（按日期倒序）</b></summary>
+
+### 📍 [2026-09-17] 抖音商城 弹窗留存 (`20260917-issue2-douyin`)
+- **涉事广告主**：抖音商城（电商购物 / 主体企业：北京字节跳动科技有限公司）
+- **载体宿主 APP**：酷安 (Android )
+- **主要表现手法**：`假关闭按钮/像素级诱导`、`开屏广告/全屏遮罩`、`无法关闭/强制倒计时`
+- **事发经过记录**：<img width="534" height="1186" alt="Image" src=" />
+- **截图凭据**：[查看网络截图](https://github.com/user-attachments/assets/08ec246f-be2d-446d-8922-d2cbd6618a65)
+- **原始数据源**：[`data/records/20260917-issue2-douyin.yaml`](data/records/20260917-issue2-douyin.yaml)
+
+---
+</details>
 
 ---
 
